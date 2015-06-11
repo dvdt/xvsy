@@ -1,0 +1,102 @@
+<!-- template.html -->
+<html>
+  <head>
+    <title>Hello React</title>
+    <script src="http://fb.me/react-0.11.2.js"></script>
+    <script src="http://fb.me/JSXTransformer-0.11.2.js"></script>
+    <script src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
+  </head>
+  <body>
+    <div id="content"></div>
+    <script type="text/jsx">
+      /** @jsx React.DOM */
+      // The above declaration must remain intact at the top of the script.
+      // Your code here
+      // tutorial1.js
+
+      // tutorial2.js
+var CommentList = React.createClass({
+  render: function() {
+    return (
+      <div className="commentList">
+        Hello, world! I am a CommentList.
+      </div>
+    );
+  }
+});
+
+var CommentForm = React.createClass({
+  render: function() {
+    return (
+      <div className="commentForm">
+        Hello, world! I am a CommentForm.
+      </div>
+    );
+  }
+});
+
+      var CommentBox = React.createClass({
+  render: function() {
+    return (
+      <div className="commentBox">
+        <h1>Comments</h1>
+        <CommentList />
+{"a" + "b"}
+        <CommentForm />
+      </div>
+    );
+  }
+});
+
+var CommentBox = React.createClass({
+  getInitialState: function() {
+    return {data: []};
+  },
+  componentDidMount: function() {
+    $.ajax({
+      url: this.props.url,
+      dataType: 'json',
+      success: function(data) {
+        this.setState({data: data});
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });
+  },
+  render: function() {
+    return (
+      <div className="commentBox">
+        <h1>Comments</h1>
+        <CommentList data={this.state.data} />
+        <CommentForm />
+      </div>
+    );
+  }
+});
+
+React.renderComponent(
+  CommentBox(null),
+  document.getElementById('content')
+);
+    </script>
+  </body>
+</html>
+
+<!-- <!DOCTYPE html> -->
+<!-- <html> -->
+<!--   <head> -->
+<!--     <script src="build/react.js"></script> -->
+<!--     <script src="build/JSXTransformer.js"></script> -->
+<!--   </head> -->
+<!--   <body> -->
+<!--     <div id="example"></div> -->
+<!--     <script type="text/jsx"> -->
+<!--       /** @jsx React.DOM */ -->
+<!--       React.renderComponent( -->
+<!--         <h1>Hello, world!</h1>, -->
+<!--         document.getElementById('example') -->
+<!--       ); -->
+<!--     </script> -->
+<!--   </body> -->
+<!-- </html> -->

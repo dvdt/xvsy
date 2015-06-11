@@ -1,0 +1,17 @@
+/target
+/classes
+/checkouts
+pom.xml
+pom.xml.asc
+*.jar
+*.class
+/.lein-*
+/.nrepl-port
+2008.csv
+/.env
+*.p12
+.idea
+.emacs*
+.module-cache
+*.db
+src/xvsy/demo

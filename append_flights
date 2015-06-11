@@ -1,0 +1,264 @@
+#!/bin/bash
+
+unzip -ca /Volumes/dtsao/flights/2012_1.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2012_2.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2012_3.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2012_4.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2012_5.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2012_6.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2012_7.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2012_8.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2012_9.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2012_10.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2012_11.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2013_1.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2013_2.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2013_3.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2013_4.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2013_5.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2013_6.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2013_7.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2013_8.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2013_9.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2013_10.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2013_11.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2013_12.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2014_1.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2014_2.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2014_3.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2014_4.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2014_5.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2014_6.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2014_7.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2014_8.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2014_9.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2014_10.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2014_11.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2014_12.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2015_1.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2015_2.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2015_3.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+unzip -ca /Volumes/dtsao/flights/2012_12.zip "*.csv" | tail -n+4 >> flights_1201_1503.csv
+
+
+"Year" INTEGER,
+"Quarter" INTEGER,
+"Month" INTEGER,
+"DayofMonth" INTEGER,
+"DayOfWeek" INTEGER,
+"FlightDate" TEXT,
+"UniqueCarrier" TEXT,
+"AirlineID" INTEGER,
+"Carrier" TEXT,
+"TailNum" TEXT,
+"FlightNum" INTEGER,
+"OriginAirportID" INTEGER,
+"OriginAirportSeqID" INTEGER,
+"OriginCityMarketID" INTEGER,
+"Origin" TEXT,
+"OriginCityName" TEXT,
+"OriginState" TEXT,
+"OriginStateFips" INTEGER,
+"OriginStateName" TEXT,
+"OriginWac" INTEGER,
+"DestAirportID" INTEGER,
+"DestAirportSeqID" INTEGER,
+"DestCityMarketID" INTEGER,
+"Dest" TEXT,
+"DestCityName" TEXT,
+"DestState" TEXT,
+"DestStateFips" INTEGER,
+"DestStateName" TEXT,
+"DestWac" INTEGER,
+"CRSDepTime" INTEGER,
+"DepTime" REAL,
+"DepDelay" REAL,
+"DepDelayMinutes" REAL,
+"DepDel15" REAL,
+"DepartureDelayGroups" REAL,
+"DepTimeBlk" TEXT,
+"TaxiOut" REAL,
+"WheelsOff" REAL,
+"WheelsOn" REAL,
+"TaxiIn" REAL,
+"CRSArrTime" INTEGER,
+"ArrTime" REAL,
+"ArrDelay" REAL,
+"ArrDelayMinutes" REAL,
+"ArrDel15" REAL,
+"ArrivalDelayGroups" REAL,
+"ArrTimeBlk" TEXT,
+"Cancelled" REAL,
+"CancellationCode" TEXT,
+"Diverted" REAL,
+"CRSElapsedTime" REAL,
+"ActualElapsedTime" REAL,
+"AirTime" REAL,
+"Flights" REAL,
+"Distance" REAL,
+"DistanceGroup" INTEGER,
+"CarrierDelay" REAL,
+"WeatherDelay" REAL,
+"NASDelay" REAL,
+"SecurityDelay" REAL,
+"LateAircraftDelay" REAL,
+"FirstDepTime" REAL,
+"TotalAddGTime" REAL,
+"LongestAddGTime" REAL,
+"DivAirportLandings" INTEGER,
+"DivReachedDest" REAL,
+"DivActualElapsedTime" REAL,
+"DivArrDelay" REAL,
+"DivDistance" REAL,
+"Div1Airport" TEXT,
+"Div1AirportID" REAL,
+"Div1AirportSeqID" REAL,
+"Div1WheelsOn" REAL,
+"Div1TotalGTime" REAL,
+"Div1LongestGTime" REAL,
+"Div1WheelsOff" REAL,
+"Div1TailNum" TEXT,
+"Div2Airport" TEXT,
+"Div2AirportID" REAL,
+"Div2AirportSeqID" REAL,
+"Div2WheelsOn" REAL,
+"Div2TotalGTime" REAL,
+"Div2LongestGTime" REAL,
+"Div2WheelsOff" REAL,
+"Div2TailNum" TEXT,
+"Div3Airport" TEXT,
+"Div3AirportID" REAL,
+"Div3AirportSeqID" REAL,
+"Div3WheelsOn" REAL,
+"Div3TotalGTime" REAL,
+"Div3LongestGTime" REAL,
+"Div3WheelsOff" REAL,
+"Div3TailNum" REAL,
+"Div4Airport" REAL,
+"Div4AirportID" REAL,
+"Div4AirportSeqID" REAL,
+"Div4WheelsOn" REAL,
+"Div4TotalGTime" REAL,
+"Div4LongestGTime" REAL,
+"Div4WheelsOff" REAL,
+"Div4TailNum" REAL,
+"Div5Airport" REAL,
+"Div5AirportID" REAL,
+"Div5AirportSeqID" REAL,
+"Div5WheelsOn" REAL,
+"Div5TotalGTime" REAL,
+"Div5LongestGTime" REAL,
+"Div5WheelsOff" REAL,
+"Div5TailNum" REAL,
+
+
+
+Year:INTEGER
+Quarter:INTEGER
+Month
+DayofMonth
+DayOfWeek
+FlightDate
+UniqueCarrier
+AirlineID
+Carrier
+TailNum
+FlightNum
+OriginAirportID
+OriginAirportSeqID
+OriginCityMarketID
+Origin
+OriginCityName
+OriginState
+OriginStateFips
+OriginStateName
+OriginWac
+DestAirportID
+DestAirportSeqID
+DestCityMarketID
+Dest
+DestCityName
+DestState
+DestStateFips
+DestStateName
+DestWac
+CRSDepTime
+DepTime
+DepDelay
+DepDelayMinutes
+DepDel15
+DepartureDelayGroups
+DepTimeBlk
+TaxiOut
+WheelsOff
+WheelsOn
+TaxiIn
+CRSArrTime
+ArrTime
+ArrDelay
+ArrDelayMinutes
+ArrDel15
+ArrivalDelayGroups
+ArrTimeBlk
+Cancelled
+CancellationCode
+Diverted
+CRSElapsedTime
+ActualElapsedTime
+AirTime
+Flights
+Distance
+DistanceGroup
+CarrierDelay
+WeatherDelay
+NASDelay
+SecurityDelay
+LateAircraftDelay
+FirstDepTime
+TotalAddGTime
+LongestAddGTime
+DivAirportLandings
+DivReachedDest
+DivActualElapsedTime
+DivArrDelay
+DivDistance
+Div1Airport
+Div1AirportID
+Div1AirportSeqID
+Div1WheelsOn
+Div1TotalGTime
+Div1LongestGTime
+Div1WheelsOff
+Div1TailNum
+Div2Airport
+Div2AirportID
+Div2AirportSeqID
+Div2WheelsOn
+Div2TotalGTime
+Div2LongestGTime
+Div2WheelsOff
+Div2TailNum
+Div3Airport
+Div3AirportID
+Div3AirportSeqID
+Div3WheelsOn
+Div3TotalGTime
+Div3LongestGTime
+Div3WheelsOff
+Div3TailNum
+Div4Airport
+Div4AirportID
+Div4AirportSeqID
+Div4WheelsOn
+Div4TotalGTime
+Div4LongestGTime
+Div4WheelsOff
+Div4TailNum
+Div5Airport
+Div5AirportID
+Div5AirportSeqID
+Div5WheelsOn
+Div5TotalGTime
+Div5LongestGTime
+Div5WheelsOff
+Div5TailNum

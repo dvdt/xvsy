@@ -1,0 +1,75 @@
+.tick {
+    stroke: #000000;
+}
+
+.y-legend {
+    stroke: #000000;
+}
+
+.x-legend {
+    stroke: #000000;
+}
+
+.geom {
+  padding: 10px;
+}
+
+.col-selector {
+}
+
+.stat-selector {
+}
+
+.where-selector {
+    margin: 5px;
+    padding: 10px;
+    background: lightgray;
+
+}
+
+.removable-wrapper {
+    padding-left: 20px;
+    background: lightgray;
+}
+
+.aes-input {
+  background: lightgray;
+  margin: 5px;
+  padding: 10px
+}
+
+.btn-remove {
+
+}
+
+.tick-label {
+    font-size: 11px;
+}
+.aes-label {
+  font-size: 13px;
+}
+
+.fill-legend {}
+
+.legends {
+    font-size: 11px;
+}
+
+.facet {
+    font-size: 13px;
+}
+#geom-form {
+  //padding: 15px;
+}
+
+#plot-result {
+  padding-top: 10px;
+}
+
+.vertical-center {
+    min-height: 100%;  /* Fallback for browsers do NOT support vh unit */
+    min-height: 100vh; /* These two lines are counted as one :-)       */
+
+    display: flex;
+    align-items: center;
+}

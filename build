@@ -1,0 +1,4 @@
+#!/bin/bash
+jsx -x jsx src/front-end resources/public/
+lein uberjar
+
