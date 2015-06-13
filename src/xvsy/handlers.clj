@@ -17,7 +17,9 @@
   (:require [xvsy.ui :as ui]
             [xvsy.utils :as utils]
             [xvsy.core :as core]
-            [xvsy.ggsql :as ggsql]))
+            [xvsy.ggsql :as ggsql]
+            [xvsy.geom :as geom]
+            [xvsy.conf :as conf]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Web routes
@@ -42,12 +44,20 @@
        (binding [ui/*validate* ui/json-validator]
          (let [data (-> spec json/read-str walk/keywordize-keys utils/remove-nils)
                {coerced-spec :data schema :schema} (ui/validate-spec data)
+               aesthetics (:aesthetics coerced-spec)
                w (if (string? width) (Integer/parseInt width) width)
                w (if (< w 100) 1400 w)
                h (if (string? height) (Integer/parseInt height) height)
                h (if (< h 100) 800 h)]
-           (-> (core/plot-svg w h inline coerced-spec) response
-               (header "Content-Type" "image/svg+xml")))))
+           (conf/with-conf {:plot-padding [50 125 10 50]
+                            :facet-padding [30 10 10 30]
+                            :geom (geom/default-geom (:geom coerced-spec))
+                            :x-label (core/x-label (:x aesthetics))
+                            :y-label (core/y-label (:y aesthetics))
+                            :fill-label (core/aes-label (:fill aesthetics))
+                            :color-label (core/aes-label (:color aesthetics))}
+             (-> (core/plot-svg w h inline coerced-spec) response
+                 (header "Content-Type" "image/svg+xml"))))))
 
   (GET "/api/v1/head"
        [dataset :as req]

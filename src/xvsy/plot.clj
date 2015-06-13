@@ -205,7 +205,7 @@
   (let [scaled-geoms (map
                       (fn apply-aes-scale
                         [geom]
-                        (merge-with #(%1 %2) svg-scales geom))positioned-geoms)]
+                        (merge-with #(%1 %2) svg-scales geom)) positioned-geoms)]
     (map (partial geom/->svg) scaled-geoms)))
 
 (defn render-facet-geoms

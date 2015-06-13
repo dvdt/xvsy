@@ -5,6 +5,7 @@
             [xvsy.stat :as stat])
   (:require
    [xvsy.utils :as utils]
+   [xvsy.conf :as conf]
    [xvsy.aesthetics]))
 
 ;; These aesthetics, when are factor, are specified by css classes.
@@ -150,7 +151,7 @@ query")
      :color (scale/default-scalar :factor)})
   (->svg [this geom-data]
     (let [{[x1 x2] :x [y1 y2] :y :keys [color fill]
-           :or {color nil fill nil}} geom-data]
+           :or {color conf/*color* fill conf/*fill*}} geom-data]
       (when (and x1 x2 y1 y2)
         [:rect {:x (min x1 x2) :width (Math/abs (- x1 x2))
                 :y (min y1 y2) :height (Math/abs (- y1 y2))
@@ -165,7 +166,7 @@ query")
     []
     Geom
     (guess-scalars [this aes-mapping]
-      (utils/apply-map scale/guess-scalar aes-mapping))
+      (fmap scale/guess-scalar (select-keys aes-mapping [:x :y :fill :color])))
     (->svg [this point-data]
       (let [{:keys [x y size color fill]
              :or {size 3, color "gray", fill "white"}} point-data]
@@ -196,7 +197,7 @@ query")
     []
   Geom
   (guess-scalars [this aes-mapping]
-    (utils/apply-map scale/guess-scalar aes-mapping))
+    (fmap scale/guess-scalar aes-mapping))
   (adj-position
     [this sql-data]
     (map
@@ -239,4 +240,5 @@ query")
     :stacked-bar (->Bar :x [[:fill :stack]])
     :dodged-bar (->Bar :x [[:fill :dodge]])
     :point (->Point)
-    :bin2d (->Bin2D)))
+    :bin2d (->Bin2D)
+    :path (->Path)))

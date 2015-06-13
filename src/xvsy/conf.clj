@@ -29,11 +29,11 @@
 
 (def ^:dynamic *plot-padding*
   "Should be a vec of [left right top bottom]"
-  nil)
+  [50 125 10 50])
 
 (def ^:dynamic *facet-padding*
   "Should be a vec of [left right top bottom]"
-  nil)
+  [30 10 10 30])
 
 (def ^:dynamic *color*
   "Should be bound to a coll of discrete colors, or ..."
@@ -52,19 +52,26 @@
 
 (def ^:dynamic *x-label* nil)
 
-
 (def ^:dynamic *y*
   "Vector pair for geom height"
   nil)
+
 (def ^:dynamic *y-label* nil)
 
 (def ^:dynamic *facet_x*
   "range for facet drawing"
   nil)
+
 (def ^:dynamic *facet_y* nil)
 (def ^:dynamic *geom* nil)
 (def ^:dynamic *fill-legend-size* 15)
 (def ^:dynamic *color-legend-size* 15)
+(def ^:dynamic *x-legender*
+  "A function that takes an aesthetic value and it's corresponding
+  svg-value, and returns a hiccup svg vector representing a legend."
+  nil)
+(def ^:dynamic *y-legender* nil)
+
 (def ^:dynamic *log*)
 
 (defn kw->var
@@ -73,9 +80,16 @@
 
 (defn get-conf
   "Returns the config setting for the given kw or str."
-  [v]
-  (deref (kw->var v)))
-
+  ([v]
+   (deref (kw->var v)))
+  ([] (into {} (map #(vector % (get-conf %)) [:aesthetics :plot-padding
+                                             :facet-padding :color
+                                             :color-label :fill
+                                             :fill-label :x :x-label
+                                             :y :y-label :facet_x
+                                             :facet_y :geom
+                                             :fill-legend-size
+                                             :color-legend-size]))))
 (defmacro with-conf
   [bindings & body]
   (let [starred-vars (map kw->var (keys bindings))

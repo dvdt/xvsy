@@ -101,6 +101,10 @@
   [g {:keys [stat col]}]
   (keyword (:name col)))
 
+(defstat [::sql :sql]
+  [g {:keys [stat col]}]
+  (korma.core/raw (:name col)))
+
 (defstat [::goog-bq :avg]
   [g {:keys [stat col]}]
   (apply korma.sql.engine/sql-func "AVG" (:name col) (:opts stat)))
@@ -176,6 +180,7 @@
   {:post [(-> % nil? not)]}
   (let [stat-name (-> aes-mapping :stat :name)]
     (cond
-      (= :id stat-name) (-> aes-mapping :col :factor)
+      (#{:id :sql} stat-name) (-> aes-mapping :col :factor)
       (= :bin stat-name) true
+
       (aggregator? aes-mapping) false)))

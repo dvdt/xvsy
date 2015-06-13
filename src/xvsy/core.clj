@@ -13,6 +13,8 @@
   (:require [korma.core :as core]
             [hiccup.core :refer [html]]))
 
+(def ^:dynamic *options* nil)
+
 (defn x-facet-spec=y-facet-spec? [facet-spec]
   (= (get-in facet-spec [0 1])
          (get-in facet-spec [1 1])))
@@ -70,6 +72,30 @@
           (korma.core/aggregate (min col-name) :min)
           (korma.core/aggregate (max col-name) :max)))))
 
+(defn factor
+  "Specifies that the given column in a dataset is a factor
+  (i.e. categorical) variable."
+  [col-name]
+  {:name col-name :factor true})
+
+(defn non-factor
+  [col-name]
+  {:name col-name :factor false})
+
+(defn spec
+  [dataset geom & {:keys [aes]}]
+  (let [data-ent (@xvsy.ggsql/datasets dataset)
+        factor-specd-aes
+        (map (fn [[aes-key mapping]]
+               (let [col-name (get-in mapping [:col :name])
+                     col-factor? (get-in mapping [:col :factor])
+                     data-factor? (get-in data-ent [:cols col-name :factor])]
+                 [aes-key (assoc-in mapping [:col :factor]
+                                    (if (nil? col-factor?) data-factor? col-factor?))]))
+             aes)]
+    {:dataset dataset :geom geom
+     :aesthetics (into {} factor-specd-aes)}))
+
 (defn ->plot-spec
   "Returns a Korma-comaptible hashmap for executing an SQL query.
 
@@ -109,38 +135,57 @@
   that hiccup SVG vector"
   [width height inline spec]
   (log/info "plotting!")
-  (let [geom (geom/default-geom (:geom spec))
+  (let [geom (or conf/*geom* (geom/default-geom (:geom spec)))
         entity (@ggsql/datasets (:dataset spec))
         facet-spec [(if-let [facet (get-in spec [:aesthetics :facet_x])] [:facet_x facet])
                     (if-let [facet (get-in spec [:aesthetics :facet_y])] [:facet_y facet])]
         aesthetics (-> spec :aesthetics (dissoc :facet_x) (dissoc :facet_y))
         ;; wheres [["in" "Dest" (map #(str \" % \") ["LAX" "IAH" "ORD" "ATL" "JFK"])]]
-        wheres (or (ui/unreactify-wheres (:where spec)) [])
+        wheres (or (if (map? (:where spec))
+                     (ui/unreactify-wheres (:where spec))
+                     (:where spec))
+                   [])
         plot-spec (->plot-spec geom aesthetics wheres entity facet-spec)
-        layer-data (ggsql/m-exec plot-spec)
+        layer-data (ggsql/exec plot-spec)
         scalars (geom/guess-scalars geom (:aesthetics plot-spec))
         scalar-trainers (utils/apply-map #(partial scale/train-global-scalars %)
                                          scalars)
         facetter-trainers (if (x-facet-spec=y-facet-spec? facet-spec)
                             scale/facet-wrap
                             scale/facet-grid)
-        p (plot/->plot geom scalar-trainers facetter-trainers layer-data)]
-    (conf/with-conf {:plot-padding [50 125 10 50]
-                     :facet-padding [30 10 10 30]
-                     :geom geom}
-      (let [[_ _ [geom-w geom-h]] (plot/area-dims width height (:facet-scalars p))]
-        (conf/with-conf {:x [0 geom-w] :y [geom-h 0]
-                         :x-label (x-label (:x aesthetics))
-                         :y-label (y-label (:y aesthetics))
-                         :fill-label (aes-label (:fill aesthetics))
-                         :color-label (aes-label (:color aesthetics))}
-          (hiccup.core/html
-           (list "<?xml version=\"1.0\" standalone=\"no\"?>"
-                 \newline
-                 (if (not inline)
-                   (str "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"
+        p (plot/->plot geom scalar-trainers facetter-trainers layer-data)
+        [_ _ [geom-w geom-h]] (plot/area-dims width height (:facet-scalars p))]
+    (conf/with-conf  {:geom geom
+                      :x (or conf/*x* [0 geom-w])
+                      :y (or conf/*y* [geom-h 0])
+                      :x-label (or conf/*x-label* (x-label (:x aesthetics)))
+                      :y-label (or conf/*y-label* (y-label (:y aesthetics)))
+                      :fill-label (or conf/*fill-label* (aes-label (:fill aesthetics)))
+                      :color-label (or conf/*color-label* (aes-label (:color aesthetics)))}
+      (doall (time (hiccup.core/html
+                    (list "<?xml version=\"1.0\" standalone=\"no\"?>"
+                          \newline
+                          (if (not inline)
+                            (str "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"
                     \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">"
-                        \newline))
-                 (plot/layout-geoms [width height] geom p))))))))
+                                 \newline))
+                          (plot/layout-geoms [width height] geom p))))))))
 
 (def m-plot-svg (memoize plot-svg))
+
+(defn qspec
+  "Convenience function for concisely specifying plots. Use in
+  conjunction with `plot-svg`."
+  [dataset geom & {:keys [aes where]}]
+  (let [data-ent (@xvsy.ggsql/datasets dataset)
+        factor-specd-aes
+        (map (fn [[aes-key mapping]]
+               (let [col-name (get-in mapping [:col :name])
+                     col-factor? (get-in mapping [:col :factor])
+                     data-factor? (get-in data-ent [:cols col-name :factor])]
+                 [aes-key (assoc-in mapping [:col :factor]
+                                    (if (nil? col-factor?) data-factor? col-factor?))]))
+             aes)]
+    {:dataset dataset :geom geom
+     :aesthetics (into {} factor-specd-aes)
+     :where (or where [])}))

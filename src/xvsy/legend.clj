@@ -85,6 +85,16 @@
           :x 0}
    (->str tick)])
 
+(defn produce-vertical-labels
+  [tick-labeller]
+  (fn [aes-val svg-val]
+    [:text {:transform (format "%s rotate(270,0,0)" (c2.svg/translate [svg-val 0]))
+            :class "tick-label"
+            :text-anchor "end"
+            :dy "0.3em"
+            :x 0}
+     (tick-labeller aes-val)]))
+
 (defn render-legend-x
   [scalar scale]
   (let [ts (scale/->ticks scalar)
@@ -95,7 +105,8 @@
                                        :x2 %2
                                        :y1 0
                                        :y2 5}) ts pos)
-        tick-legends (map vertical-labels ts pos)
+        tick-legender (or conf/*x-legender* vertical-labels)
+        tick-legends (map tick-legender ts pos)
         iscale [:line {:stroke "black" :y1 0 :y2 0 :x1 (first pos) :x2 (last pos)}]]
     (->Legend iscale svg-ticks tick-legends)))
 
@@ -109,12 +120,13 @@
                                        :x2 -5
                                        :y1 %2
                                        :y2 %2}) ts pos)
-        tick-legends (map #(vector :text {:class "tick-label"
-                                          :text-anchor "end"
-                                          :y %2
-                                          :dy "0.3em"
-                                          :x "-0.5em"}
-                                   (->str %1)) ts pos)
+        tick-legender (or conf/*y-legender* #(vector :text {:class "tick-label"
+                                                            :text-anchor "end"
+                                                            :y %2
+                                                            :dy "0.3em"
+                                                            :x "-0.5em"}
+                                                     (->str %1)))
+        tick-legends (map tick-legender ts pos)
         ;; inverse scale maps svg cooridnates to data coords
         iscale [:line {:stroke "black" :x1 0 :x2 0 :y1 (first pos) :y2 (last pos)}]]
     (->Legend iscale svg-ticks tick-legends)))
