@@ -1,5 +1,7 @@
 (ns xvsy.core
-  (:require [clojure.tools.logging :as log])
+  (:require [clojure.tools.logging :as log]
+            [clojure.data.json]
+            [ring.util.codec])
   (:require (xvsy  [geom :as geom]
                    [ggsql :as ggsql]
                    [scale :as scale]
