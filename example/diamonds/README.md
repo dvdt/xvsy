@@ -22,8 +22,8 @@ cd example/diamonds && lein ring server
 #### Java
 
 ```
-wget http://davetsao.com/jdiamonds.ar
-PORT=3000 java -cp diamonds.jar clojure.main -m diamonds.handler
+wget http://davetsao.com/xvsy/diamonds-0.1.0-SNAPSHOT-standalone.jar
+PORT=3000 java -cp diamonds-0.1.0-SNAPSHOT-standalone.jar clojure.main -m diamonds.handler
 ```
 
 ## Play around
@@ -38,7 +38,7 @@ Example plots are served from:
 - [http://localhost:3000/plot-3](http://localhost:3000/plot-3)
 - [http://localhost:3000/plot-4](http://localhost:3000/plot-4)
 
-Try editing the plots in [src/handler.clj](src/handler.clj). If you're
+Try editing the plots in [diamonds.handler](/example/diamonds/src/diamonds/handler.clj). If you're
 running `lein ring server`, code changes you make are reloaded live.
 
 

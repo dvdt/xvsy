@@ -27,7 +27,7 @@ Clojure plotting examples
              (y PRICE :id)]
        :where [["<" :CARAT 3]])
 ```
-![](http://localhost:3333/plot-1)
+![](http://davetsao.com/xvsy/plot-1.svg.gz)
 
 ### Price per carat of a diamond dramatically increases at 1 carat
 ###### For the best deal, buy a 0.95 carat diamond
@@ -36,11 +36,11 @@ Clojure plotting examples
        :aes [(x CARAT :bin :lower 0 :upper 5.5 :nbins 55)
              (y (non-factor "AVG(PRICE / CARAT)") :sql)])
 ```
-![](http://localhost:3333/plot-3)
+![](http://davetsao.com/xvsy/plot-3.svg.gz)
 
 Quick Start
 ---
-Start a xvsy plotting server on your machine to begin exploring the [diamonds]() dataset. Detailed instructions with in the [diamonds example project](./example/diamonds/README.md)
+Start a xvsy plotting server on your machine to explore the diamonds dataset. Detailed instructions with in the [diamonds example project](./example/diamonds/README.md)
 
 ### Using Leiningen
 ```
@@ -49,10 +49,10 @@ cd xvsy && lein install && cd example/diamonds && lein ring server
 ```
 
 ### Alternatively, just use java
-There's also an uberjar packaged
+Download and run an uberjar
 ```
-wget http://davetsao.com/jdiamonds.ar
-PORT=3000 java -cp xvsy/examples/diamonds.jar -m clojure.main
+wget http://davetsao.com/xvsy/diamonds-0.1.0-SNAPSHOT-standalone.jar
+PORT=3000 java -cp diamonds-0.1.0-SNAPSHOT-standalone.jar -m clojure.main
 ```
 
 Now open [http://localhost:3000](http://localhost:3000) in your favorite web browser.

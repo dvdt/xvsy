@@ -13,7 +13,7 @@
                  [korma "0.3.1"]
                  [clj-time "0.9.0"]
                  [prismatic/schema "0.3.3"]
-                 [xvsy  "0.1.0-SNAPSHOT"]]
+                 [xvsy  "0.1.1-SNAPSHOT"]]
   :plugins [[lein-ring "0.9.5"]]
   :ring {:handler diamonds.handler/app
          :init diamonds.data/init-diamonds-table}
