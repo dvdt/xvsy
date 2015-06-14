@@ -11,6 +11,7 @@
             [xvsy.geom :as geom]
             [xvsy.plot :as plot]
             [xvsy.scale :as scale]
+            [xvsy.aesthetics :as aes :refer [x y fill facet_y facet_x color size]]
             [xvsy.handlers]
             [xvsy.goog-bq :as goog-bq]
             [xvsy.conf :as conf]
@@ -61,41 +62,46 @@
 ;; Web routes
 
 (defn plot-1 []
-  (let [my-json (qspec "diamonds" :point
-                      :aes [(x "CARAT")
-                            (y "PRICE" :id)]
-                      :where [["<" "CARAT" 3]])]
+  (let [my-json (qspec :diamonds :point
+                       :aes [(x CARAT)
+                             (fill "white")
+                             (size 2)
+                             (y PRICE :id)]
+                       :where [["<" :CARAT 3]])]
     (conf/with-conf {}
       (xvsy.core/plot-svg 1400 800 false my-json))))
 
 (defn plot-2 []
-  (let [my-json (qspec "diamonds" :dodged-bar
-                      :aes [(x "COLOR")
-                            (fill "CLARITY")
-                            (y (non-factor "AVG(PRICE / CARAT)") :sql)]
+  (let [my-json (qspec :diamonds :dodged-bar
+                       :aes [(x CARAT :bin :lower 0 :upper 3 :nbins 30)
+                             (facet_y CLARITY)
+                             (y (non-factor "AVG(PRICE / CARAT)") :sql)]
                       :where [])]
-    (conf/with-conf {:fill cbrew/Spectral-8}
-      (xvsy.core/plot-svg 800 600 false my-json))))
+    (conf/with-conf {:fill cbrew/Spectral-8
+                     :x-legender (xvsy.legend/produce-vertical-labels
+                                  (fn [[[x & _] & _]] (str x)))}
+      (xvsy.core/plot-svg 800 1200 true my-json))))
 
 (defn plot-3 []
   (let [my-json
-        (qspec "diamonds" :stacked-bar
-              :aes [(x "CARAT" :bin :lower 0 :upper 2.5 :nbins 50)
-                    (y "PRICE" :avg)
-                    (facet_y "COLOR")])]
-    (conf/with-conf {:fill "steelblue"
-                     :color "grey"
-                     :plot-padding [100 100 100 250]
+        (qspec :diamonds :dodged-bar
+               :aes [(x CARAT :bin :lower 0 :upper 2.5 :nbins 10)
+                     (y PRICE :avg)
+                     (facet_y COLOR)
+                     (fill CLARITY)])]
+    (conf/with-conf {:plot-padding [100 100 100 250]
+                     :fill cbrew/Blues-8
                      :x-legender (xvsy.legend/produce-vertical-labels
                                   (fn [[[x & _] & _]] (str x)))}
       (xvsy.core/plot-svg 1400 1600 false my-json))))
 
 (defn plot-4 []
-  (let [my-json (qspec "diamonds" :point
-                      :aes [(x "CARAT" :bin :lower 0 :upper 2.5 :nbins 100)
-                            (fill "CLARITY")
-                            (y "PRICE" :avg)
-                            (facet_y "CLARITY")])]
+  (let [my-json (qspec :diamonds :point
+                       :aes [(x CARAT :bin :lower 0 :upper 2.5 :nbins 50)
+                             (fill CLARITY)
+                             (color COLOR)
+                             (y PRICE :avg)
+                             (facet_y CLARITY)])]
     (conf/with-conf {:fill cbrew/Blues-8
                      :color nil
                      :plot-padding [100 100 100 250]}
@@ -104,10 +110,10 @@
 (defroutes diamond-plot-examples
   ;; simple plots can be specified as JSON. Sane defaults means that
   ;; the plot usually looks reasonably good.
-  (GET "/d1" [] (header (response (plot-1)) "Content-Type" "image/svg+xml"))
-  (GET "/d2" [] (header (response (plot-2)) "Content-Type" "image/svg+xml"))
-  (GET "/d4" [] (header (response (plot-4)) "Content-Type" "image/svg+xml"))
-  (GET "/d3" [] (header (response (plot-3)) "Content-Type" "image/svg+xml")))
+  (GET "/plot-1" [] (header (response (plot-1)) "Content-Type" "image/svg+xml"))
+  (GET "/plot-2" [] (header (response (plot-2)) "Content-Type" "image/svg+xml"))
+  (GET "/plot-3" [] (header (response (plot-4)) "Content-Type" "image/svg+xml"))
+  (GET "/plot-4" [] (header (response (plot-3)) "Content-Type" "image/svg+xml")))
 
 (def app
   (routes diamond-plot-examples

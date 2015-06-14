@@ -14,8 +14,9 @@
                  [clj-time "0.9.0"]
                  [prismatic/schema "0.3.3"]
                  [xvsy  "0.1.0-SNAPSHOT"]]
-  :plugins [[lein-ring "0.8.13"]]
-  :ring {:handler diamonds.handler/app}
+  :plugins [[lein-ring "0.9.5"]]
+  :ring {:handler diamonds.handler/app
+         :init diamonds.data/init-diamonds-table}
   :profiles
   {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
                         [ring-mock "0.1.5"]
