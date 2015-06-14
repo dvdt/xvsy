@@ -202,3 +202,11 @@
     {:dataset dataset :geom geom
      :aesthetics (into {} factor-specd-aes)
      :where (or where [])}))
+
+(defn ->urlencode-spec
+  "Converts a clojure plot spec into a urlencoded spec"
+  [spec]
+  (-> spec
+      (assoc :where (ui/reactify-wheres (:where spec)))
+      clojure.data.json/json-str
+      ring.util.codec/url-encode))

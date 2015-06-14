@@ -84,6 +84,13 @@
   (map (fn [[k {:keys [expr1 pred expr2]}]]
          [pred expr1 expr2]) where-map))
 
+(defn reactify-wheres
+  [where-seq]
+  (let [where-maps (map (fn [[pred expr1 expr2]]
+                          {:pred pred :expr1 expr1 :expr2 expr2})
+                        where-seq)]
+    (zipmap schemers/where-enumerations where-maps)))
+
 (defn remove-optional-aes
   "removes optional aesthetics that are not present in the original data"
   [orig-data schema comp-data]

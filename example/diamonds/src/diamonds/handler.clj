@@ -22,7 +22,7 @@
   (:gen-class :main true))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Use the `defdataset` macro to register the diamonds database
+;; Use the `defdataset` macro to register the diamonds database; see diamonds.data
 
 (defdataset ggplot2-diamonds "diamonds"
   (korma.core/table "DIAMONDS")
@@ -52,14 +52,16 @@
 ;; Google Big Query: if you have a google big query account, set your
 ;; credentials and load a public dataset
 
-;; (goog-bq/set-credential! "blahblahblah@developer.gserviceaccount.com"
-;;                          "mysupersecretkey.p12")
-;; (goog-bq/set-project-id! "my-project-id")
-;; (require 'xvsy.datasets) ; the natality dataset should now appear in the web ui
+#_(goog-bq/set-credential! "blahblahblah@developer.gserviceaccount.com"
+                         "mysupersecretkey.p12")
+#_(goog-bq/set-project-id! "my-project-id")
+#_(require 'xvsy.datasets) ; the natality dataset should now appear in the web ui
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Web routes
+;; Example plots using a ggplot2 like syntax.
+;; Try changing some of these! They are served at /plot-1, /plot-2, etc.
 
 (defn plot-1 []
   (let [my-json (qspec :diamonds :point
@@ -69,9 +71,11 @@
                              (y PRICE :id)]
                        :where [["<" :CARAT 3]])]
     (conf/with-conf {}
-      (xvsy.core/plot-svg 1400 800 false my-json))))
+      (xvsy.core/plot-svg 1400 800 true my-json))))
 
-(defn plot-2 []
+(defn plot-2
+  "Demonstrates custom labels, executing raw SQL"
+  []
   (let [my-json (qspec :diamonds :dodged-bar
                        :aes [(x CARAT :bin :lower 0 :upper 3 :nbins 30)
                              (facet_y CLARITY)
@@ -93,7 +97,7 @@
                      :fill cbrew/Blues-8
                      :x-legender (xvsy.legend/produce-vertical-labels
                                   (fn [[[x & _] & _]] (str x)))}
-      (xvsy.core/plot-svg 1400 1600 false my-json))))
+      (xvsy.core/plot-svg 1400 1600 true my-json))))
 
 (defn plot-4 []
   (let [my-json (qspec :diamonds :point
@@ -105,11 +109,28 @@
     (conf/with-conf {:fill cbrew/Blues-8
                      :color nil
                      :plot-padding [100 100 100 250]}
-      (xvsy.core/plot-svg 1400 1600 false my-json))))
+      (xvsy.core/plot-svg 1400 1600 true my-json))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Web Serving
 
 (defroutes diamond-plot-examples
-  ;; simple plots can be specified as JSON. Sane defaults means that
-  ;; the plot usually looks reasonably good.
+
+  ;; This browser UI is meant to act as standalone data exploration console.
+  (GET "/" []
+       (ring.util.response/redirect "/index.html"))
+
+;; The embed version of plotting UI is meant for sticking into
+  ;; iFrames and embedding on external sites.
+  (GET "/embed" []
+       (ring.util.response/redirect
+        (str "/embed.html?spec="
+             (xvsy.core/->urlencode-spec (qspec :diamonds :dodged-bar
+                                                :aes [(x CARAT :bin :lower 0 :upper 3 :nbins 30)
+                                                      (y PRICE :avg)
+                                                      (facet_y COLOR)])))))
+
+  ;; serve the example plots.
   (GET "/plot-1" [] (header (response (plot-1)) "Content-Type" "image/svg+xml"))
   (GET "/plot-2" [] (header (response (plot-2)) "Content-Type" "image/svg+xml"))
   (GET "/plot-3" [] (header (response (plot-4)) "Content-Type" "image/svg+xml"))
