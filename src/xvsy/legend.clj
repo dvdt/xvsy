@@ -74,7 +74,9 @@
   [:text {:class "tick-label"
            :text-anchor "middle"
            :y 5
-           :x position}
+           :x position
+          :font-family conf/*font-family*
+          :font-size conf/*font-size*}
    (->str tick)])
 
 (defn vertical-labels
@@ -83,7 +85,10 @@
           :class "tick-label"
           :text-anchor "end"
           :dy "0.3em"
-          :x 0}
+          :x 0
+          :font-family conf/*font-family*
+          :font-size conf/*font-size*
+          }
    (->str tick)])
 
 (defn produce-vertical-labels
@@ -93,7 +98,9 @@
             :class "tick-label"
             :text-anchor "end"
             :dy "0.3em"
-            :x 0}
+            :x 0
+            :font-family conf/*font-family*
+            :font-size conf/*font-size*}
      (tick-labeller aes-val)]))
 
 (defn render-legend-x
@@ -125,7 +132,9 @@
                                                             :text-anchor "end"
                                                             :y %2
                                                             :dy "0.3em"
-                                                            :x "-0.5em"}
+                                                            :x "-0.5em"
+                                                            :font-family conf/*font-family*
+                                                            :font-size conf/*font-size*}
                                                      (->str %1)))
         tick-legends (map tick-legender ts pos)
         ;; inverse scale maps svg cooridnates to data coords

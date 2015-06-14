@@ -5,8 +5,8 @@
    [xvsy.goog-bq]
    [korma.core]))
 
-(def datasets
-  "atom that maps a str dataset name to a dataset."
+;; atom that maps a str dataset name to a dataset.
+(defonce datasets
   (atom {}))
 
 (defn exec

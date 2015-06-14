@@ -241,7 +241,9 @@ query")
   (guess-scalars [this aes-mapping] (throw (Exception. "Not implemented")))
   (adj-position [this data] (throw (Exception. "Not implemented")))
   (->svg [this {x :x, y :y, text :text}]
-    [:text (merge {:x (utils/->point x) :y (utils/->point y)} svg-attrs) text]))
+    [:text (merge {:x (utils/->point x) :y (utils/->point y)
+                   :font-family conf/*font-family*
+                   :font-size conf/*font-size*} svg-attrs) text]))
 
 (defn default-geom
   "Returns a geom based on the kw"

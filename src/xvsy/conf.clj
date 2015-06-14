@@ -74,6 +74,9 @@
 
 (def ^:dynamic *log*)
 
+(def ^:dynamic *font-family* "monospace")
+(def ^:dynamic *font-size* "12")
+
 (defn kw->var
   [kw]
   (intern 'xvsy.conf (symbol (str \* (name kw) \*))))

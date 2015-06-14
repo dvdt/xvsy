@@ -1,6 +1,7 @@
 (ns xvsy.plot
   "This namespace is responsible for generating svg plots from sql data."
   (:require
+   [clojure.zip :as zip]
    [clojure.algo.generic.functor :refer [fmap]]
    [clojure.tools.logging :as log]
    [schema.core :as s]
@@ -243,13 +244,16 @@
 (defn facet-labeller
   [facet-x facet-y]
   (let [attrs {:transform (translate [0 0])
-               :text-anchor "start"}]
+               :text-anchor "start"
+               :font-family conf/*font-family*
+               :font-size conf/*font-size*}]
     (cond
       (and (nil? facet-x) (nil? facet-y)) nil
       (and facet-x facet-y) [:text attrs
                              (format "(%s, %s)" facet-x facet-y)]
       (nil? facet-x) [:text attrs (str facet-y)]
       (nil? facet-y) [:text attrs (str facet-x)])))
+
 
 (defn layout-geoms
   "Returns a svg hiccup vector plot. Takes width, height of the svg elem;
@@ -297,6 +301,10 @@
           (utils/apply-key-map (fn [[facet-x facet-y] wrapper]
                                  (conj wrapper (facet-labeller facet-x facet-y))) $))]
     [:svg {:width width :height height :xmlns "http://www.w3.org/2000/svg"}
+     [:defs #_[:style {:type "text/css"}
+             "text {font-family:
+\"Courer New\", \"Courier\", \"monospace\";
+font-size: 0.8em}"]]
      [:g {:transform (translate [(nth conf/*plot-padding* 0)
                                  (nth conf/*plot-padding* 2)])}
       (vals facet=>svg-elem)]

@@ -27,7 +27,9 @@
   (cond (nil? mapping) ""
         (map? mapping) (let [stat-label (if (#{:id :bin} stat-name) "" (str (name stat-name) " "))
                              label (str stat-label col-name)]
-                         [:text {:class "aes-label"} label])
+                         [:text {:class "aes-label"
+                                 :font-family conf/*font-family*
+                                 :font-size conf/*font-size*} label])
         :else ""))
 
 (defn x-label [mapping]
