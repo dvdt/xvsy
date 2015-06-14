@@ -13,7 +13,7 @@
 (defn slurp-diamonds
   "Returns diamonds dataset from diamonds.csv as a list of column values."
   []
-  (with-open [diamonds-file (io/reader "resources/diamonds.csv")]
+  (with-open [diamonds-file (io/reader (io/resource "diamonds.csv"))]
     (doall
      (rest (csv/read-csv diamonds-file)))))
 

@@ -61,53 +61,68 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Example plots using a ggplot2 like syntax.
-;; Try changing some of these! They are served at /plot-1, /plot-2, etc.
+;; Try changing some of these! They are served at
+;; http://localhost:3000/plot-1, http://localhost:3000/plot-2, etc.
 
-(defn plot-1 []
+(defn plot-1
+  "Sometimes you just can't beat a scatter plot. Notice the
+   discontinuity at ~$1500 and how strongly clustered the data are at
+   0.5, 1, 1.5 and 2.0 carats."
+  []
   (let [my-json (qspec :diamonds :point
                        :aes [(x CARAT)
                              (fill "white")
+                             (color "steelblue")
                              (size 2)
                              (y PRICE :id)]
                        :where [["<" :CARAT 3]])]
-    (conf/with-conf {}
-      (xvsy.core/plot-svg 1400 800 true my-json))))
+    (conf/with-conf {:plot-padding [50 0 0 50]
+                     :facet-padding [30 0 0 50]}
+      (xvsy.core/plot-svg 750 500 true my-json))))
 
 (defn plot-2
-  "Demonstrates custom labels, executing raw SQL"
+  "Heatmap showing ~$1500 cut off for diamonds < 0.5 carats, $2000
+  cutoff for diamonds < 0.7 carat"
   []
-  (let [my-json (qspec :diamonds :dodged-bar
-                       :aes [(x CARAT :bin :lower 0 :upper 3 :nbins 30)
-                             (facet_y CLARITY)
-                             (y (non-factor "AVG(PRICE / CARAT)") :sql)]
-                      :where [])]
-    (conf/with-conf {:fill cbrew/Spectral-8
-                     :x-legender (xvsy.legend/produce-vertical-labels
+  (let [my-json (qspec :diamonds :bin2d
+                       :aes [(x CARAT :bin :lower 0.3 :upper 1.5 :nbins 24)
+                             (fill CARAT :count)
+                             (y PRICE :bin :lower 0 :upper 3000 :nbins 20)]
+                       :where [["<" :PRICE 3000] ["<" :CARAT 1.5] [">" :CARAT 0.30]])]
+    (conf/with-conf {:fill cbrew/Blues-8
+                     :x-legender nil #_(xvsy.legend/produce-vertical-labels
                                   (fn [[[x & _] & _]] (str x)))}
-      (xvsy.core/plot-svg 800 1200 true my-json))))
+      (xvsy.core/plot-svg 800 600 true my-json))))
 
-(defn plot-3 []
+(defn plot-3
+  "Example of putting SQL statements into the plot spec. Want good
+  value? Buy a diamond that is 0.95 carats"
+  []
   (let [my-json
         (qspec :diamonds :dodged-bar
-               :aes [(x CARAT :bin :lower 0 :upper 2.5 :nbins 10)
-                     (y PRICE :avg)
-                     (facet_y COLOR)
-                     (fill CLARITY)])]
-    (conf/with-conf {:plot-padding [100 100 100 250]
+               :aes [(x CARAT :bin :lower 0 :upper 5.5 :nbins 55)
+                     (y (non-factor "AVG(PRICE / CARAT)") :sql)
+                     #_(facet_y COLOR)
+                     #_(fill CUT)])]
+    (conf/with-conf {:plot-padding [50 0 0 50]
+                     :facet-padding [30 0 0 50]
                      :fill cbrew/Blues-8
                      :x-legender (xvsy.legend/produce-vertical-labels
                                   (fn [[[x & _] & _]] (str x)))}
-      (xvsy.core/plot-svg 1400 1600 true my-json))))
+      (xvsy.core/plot-svg 750 500 true my-json))))
 
-(defn plot-4 []
+(defn plot-4
+  "Just like ggplot2, putting in a constant for an aesthetic (in
+  this case \"orange\") causes all geoms to have that value."
+  []
   (let [my-json (qspec :diamonds :point
-                       :aes [(x CARAT :bin :lower 0 :upper 2.5 :nbins 50)
-                             (fill CLARITY)
-                             (color COLOR)
+                       :aes [(x CARAT :bin :lower 0 :upper 5.5 :nbins 11)
+                             (fill COLOR)
+                             (color "orange")
                              (y PRICE :avg)
+                             (facet_x COLOR)
                              (facet_y CLARITY)])]
-    (conf/with-conf {:fill cbrew/Blues-8
-                     :color nil
+    (conf/with-conf {:fill cbrew/Blues-8 ; this is how you change color-schemes
                      :plot-padding [100 100 100 250]}
       (xvsy.core/plot-svg 1400 1600 true my-json))))
 
@@ -133,8 +148,8 @@
   ;; serve the example plots.
   (GET "/plot-1" [] (header (response (plot-1)) "Content-Type" "image/svg+xml"))
   (GET "/plot-2" [] (header (response (plot-2)) "Content-Type" "image/svg+xml"))
-  (GET "/plot-3" [] (header (response (plot-4)) "Content-Type" "image/svg+xml"))
-  (GET "/plot-4" [] (header (response (plot-3)) "Content-Type" "image/svg+xml")))
+  (GET "/plot-3" [] (header (response (plot-3)) "Content-Type" "image/svg+xml"))
+  (GET "/plot-4" [] (header (response (plot-4)) "Content-Type" "image/svg+xml")))
 
 (def app
   (routes diamond-plot-examples

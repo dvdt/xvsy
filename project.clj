@@ -1,4 +1,4 @@
-(defproject xvsy "0.1.0-SNAPSHOT"
+(defproject xvsy "0.1.1-SNAPSHOT"
   :description "Integrated data visualization and exploration environment"
   :url "http://davetsao.com/blog/2015-06-01-simple-easy-data-viz.html"
   :license {:name "Eclipse Public License"

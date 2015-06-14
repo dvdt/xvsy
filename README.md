@@ -13,23 +13,49 @@ Play around with these **x***vs***y** visualizations:
 Also read the [blog post on finding the best frequent flyer program](http://davetsao.com/blog/2015-06-01-simple-easy-data-viz.html)
 for a walk-through analysis.
 
+Clojure plotting examples
+---
+
+### The heavier the diamond, the lighter the wallet
+###### Also, people like round numbers
+```clojure
+(qspec :diamonds :point
+       :aes [(x CARAT)
+             (fill "white")
+             (color "steelblue")
+             (size 2)
+             (y PRICE :id)]
+       :where [["<" :CARAT 3]])
+```
+![](http://localhost:3333/plot-1)
+
+### Price per carat of a diamond dramatically increases at 1 carat
+###### For the best deal, buy a 0.95 carat diamond
+```clojure
+(qspec :diamonds :dodged-bar
+       :aes [(x CARAT :bin :lower 0 :upper 5.5 :nbins 55)
+             (y (non-factor "AVG(PRICE / CARAT)") :sql)])
+```
+![](http://localhost:3333/plot-3)
+
 Quick Start
 ---
-Start a xvsy plotting server on your machine to begin exploring the [diamonds]() dataset.
+Start a xvsy plotting server on your machine to begin exploring the [diamonds]() dataset. Detailed instructions with in the [diamonds example project](./example/diamonds/README.md)
 
 ### Using Leiningen
 ```
-git clone asdasf
-cd xvsy && lein install && cd example/diamonds && lein run -m diamonds.handler
+git clone https://github.com/dvdt/xvsy.git
+cd xvsy && lein install && cd example/diamonds && lein ring server
 ```
 
 ### Alternatively, just use java
 There's also an uberjar packaged
 ```
-java -cp xvsy/examples/diamonds.jar -m clojure.main
+wget http://davetsao.com/jdiamonds.ar
+PORT=3000 java -cp xvsy/examples/diamonds.jar -m clojure.main
 ```
 
-Now open [http://localhost:3333](http://localhost:3333) in your favorite web browser.
+Now open [http://localhost:3000](http://localhost:3000) in your favorite web browser.
 
 Philosophy
 ---
@@ -62,3 +88,6 @@ I started this side project to 1) learn the grammar of graphics and 2)
 learn clojure. Along the way, I also started using
 [React](https://facebook.github.io/react/). Nothing here was ever
 meant to be production code. Use at your own risk.
+
+
+Copyright © 2015 David Tsao
