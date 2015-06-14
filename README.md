@@ -27,7 +27,7 @@ Clojure plotting examples
              (y PRICE :id)]
        :where [["<" :CARAT 3]])
 ```
-![](http://davetsao.com/xvsy/plot-1.svg.gz)
+![](http://davetsao.com/xvsy/plot-1.svg)
 
 ### Price per carat of a diamond dramatically increases at 1 carat
 ###### For the best deal, buy a 0.95 carat diamond
@@ -36,7 +36,7 @@ Clojure plotting examples
        :aes [(x CARAT :bin :lower 0 :upper 5.5 :nbins 55)
              (y (non-factor "AVG(PRICE / CARAT)") :sql)])
 ```
-![](http://davetsao.com/xvsy/plot-3.svg.gz)
+![](http://davetsao.com/xvsy/plot-3.svg)
 
 Quick Start
 ---
