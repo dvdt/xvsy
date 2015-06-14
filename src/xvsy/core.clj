@@ -24,10 +24,11 @@
   [{{col-name :name} :col
     {stat-name :name} :stat
     :as mapping}]
-  (if (nil? mapping) ""
-      (let [stat-label (if (#{:id :bin} stat-name) "" (str (name stat-name) " "))
-            label (str stat-label col-name)]
-        [:text {:class "aes-label"} label])))
+  (cond (nil? mapping) ""
+        (map? mapping) (let [stat-label (if (#{:id :bin} stat-name) "" (str (name stat-name) " "))
+                             label (str stat-label col-name)]
+                         [:text {:class "aes-label"} label])
+        :else ""))
 
 (defn x-label [mapping]
       (update-in (aes-label mapping) [1] #(assoc % :dy "20px")))
@@ -78,9 +79,14 @@
   [col-name]
   {:name col-name :factor true})
 
-(defn non-factor
+(defn non-factor*
   [col-name]
   {:name col-name :factor false})
+
+(defmacro non-factor
+  [col-sym]
+  (let [col-name (name col-sym)]
+    `(non-factor* ~col-name)))
 
 (defn spec
   [dataset geom & {:keys [aes]}]
@@ -134,7 +140,6 @@
   for the query results in accordance to that plot spec, and returns
   that hiccup SVG vector"
   [width height inline spec]
-  (log/info "plotting!")
   (let [geom (or conf/*geom* (geom/default-geom (:geom spec)))
         entity (@ggsql/datasets (:dataset spec))
         facet-spec [(if-let [facet (get-in spec [:aesthetics :facet_x])] [:facet_x facet])
@@ -147,7 +152,9 @@
                    [])
         plot-spec (->plot-spec geom aesthetics wheres entity facet-spec)
         layer-data (ggsql/exec plot-spec)
+
         scalars (geom/guess-scalars geom (:aesthetics plot-spec))
+
         scalar-trainers (utils/apply-map #(partial scale/train-global-scalars %)
                                          scalars)
         facetter-trainers (if (x-facet-spec=y-facet-spec? facet-spec)
@@ -177,14 +184,18 @@
   "Convenience function for concisely specifying plots. Use in
   conjunction with `plot-svg`."
   [dataset geom & {:keys [aes where]}]
-  (let [data-ent (@xvsy.ggsql/datasets dataset)
+  (let [dataset (name dataset)
+        data-ent (@xvsy.ggsql/datasets dataset)
+        _ (assert data-ent)
         factor-specd-aes
         (map (fn [[aes-key mapping]]
-               (let [col-name (get-in mapping [:col :name])
-                     col-factor? (get-in mapping [:col :factor])
-                     data-factor? (get-in data-ent [:cols col-name :factor])]
-                 [aes-key (assoc-in mapping [:col :factor]
-                                    (if (nil? col-factor?) data-factor? col-factor?))]))
+               (cond (map? mapping)
+                     (let [col-name (name (get-in mapping [:col :name]))
+                           col-factor? (get-in mapping [:col :factor])
+                           data-factor? (get-in data-ent [:cols col-name :factor])]
+                       [aes-key (assoc-in mapping [:col :factor]
+                                          (if (nil? col-factor?) data-factor? col-factor?))])
+                     :else [aes-key mapping]))
              aes)]
     {:dataset dataset :geom geom
      :aesthetics (into {} factor-specd-aes)

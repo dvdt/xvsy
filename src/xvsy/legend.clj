@@ -34,9 +34,10 @@
 
 (defn scale-geoms
   [scalar-ranges geoms]
-  (->> geoms utils/to-columnar
-       (merge-with apply-scale-range scalar-ranges)
-       utils/to-row))
+  (if (empty? geoms) nil
+    (->> geoms utils/to-columnar
+         (merge-with apply-scale-range scalar-ranges)
+         utils/to-row)))
 
 (defn render-geoms
   "Returns svg elems from the given geoms. If a geom attribute is in
@@ -146,6 +147,10 @@
   [aes scalar scale]
   (render-legend-y scalar scale))
 
+;; TODO
+(defmethod render-legend :size
+  [aes scalar scale]
+  (map->Legend {:ticks nil :labels nil :iscale nil}))
 
 ;; returns a discrete color scale
 (defmethod render-legend :fill
@@ -156,7 +161,6 @@
         scalar-ranges {:x [(scale/default-scalar :factor) [0 conf/*fill-legend-size*]]
                        :y [(scale/default-scalar :compose)
                            [(* (+ 2  (count fill-ticks)) conf/*fill-legend-size*) 0]]}
-        scaled-geoms (scale-geoms scalar-ranges geoms)
         labels (render-geoms (geom/->Text {:dy "-0.3em"}) scalar-ranges
                              (map #(assoc %1 :text (->str %2))
                                   geoms (scale/->ticks scalar)))
@@ -171,7 +175,6 @@
         scalar-ranges {:x [(scale/default-scalar :factor) [0 conf/*color-legend-size*]]
                        :y [(scale/default-scalar :compose)
                            [(* (+ 2  (count fill-ticks)) conf/*color-legend-size*) 0]]}
-        scaled-geoms (scale-geoms scalar-ranges geoms)
         labels (render-geoms (geom/->Text {:dy "-0.3em"}) scalar-ranges
                              (map #(assoc %1 :text (->str %2))
                                   geoms (scale/->ticks scalar)))

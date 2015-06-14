@@ -10,14 +10,17 @@
 (defn order-aes
   "Returns the aesthetics in aes-mappings, in aesthetic order."
   [aes-mappings]
-  (filter (set (keys aes-mappings)) *aesthetics*))
+  (filter (set (for [[k v] aes-mappings
+                     :when (map? v)] k)) *aesthetics*))
 
 (defn assoc-aes-where
   [g pred-str k v]
   (eng/bind-query
    g
    (let [pred (-> pred-str symbol eng/predicates resolve)
-         k (keyword k)]
+         k (if (= (stat/subprotocol g) "goog-bq")
+             (name k)
+             (keyword k))]
      (korma.core/where* g (eng/pred-map (pred k v))))))
 
 ;; Google big query uses non-standard SQL that requires special modifcation.
@@ -36,14 +39,18 @@
 (defn assoc-mapping
   "Add an aesthetic mapping to the given grammar of graphics plot spec."
   [g [aes aes-mapping]]
-  (let [field (stat/bind-field g aes-mapping)
-        g (korma.core/fields g [field aes])
-        g (if (stat/factor? aes-mapping)
-            (if (= (stat/subprotocol g) "goog-bq") ; see note above.
-              (korma.core/group g aes)
-              (korma.core/group g field)) g)
-        g (update-in g [:aesthetics] assoc aes aes-mapping)]
-     g))
+  (if (map? aes-mapping)
+    (let [field (stat/bind-field g aes-mapping)
+          g (korma.core/fields g [field aes])
+          g (if (stat/factor? aes-mapping)
+              (if (= (stat/subprotocol g) "goog-bq") ; see note above.
+                (korma.core/group g aes)
+                (korma.core/group g field)) g)
+          g (update-in g [:aesthetics] assoc aes aes-mapping)]
+      g)
+    ;; otherwise, this aesthetic is a constant value
+    (-> g (update-in [:aesthetics] assoc aes aes-mapping)
+        (update-in [:ent] (fn [ent] (korma.core/transform ent #(assoc % aes aes-mapping)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Public API
@@ -79,32 +86,67 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Convenience functions for specifiying aesthetic mappings
 
-(defn x
-  "Returns a aesthetic mapping for x."
-  ([col]
-   [:x {:col (if (map? col) col {:name col :factor nil})
-        :stat {:name :id}}])
-  ([col stat-name & {:as stat-opts}]
-   [:x {:col (if (map? col) col {:name col :factor nil})
-        :stat {:name stat-name :opts stat-opts}}]))
+(defn mapping*
+  ([aes col]
+   [aes {:col (if (map? col) col {:name col :factor nil})
+         :stat {:name :id}}])
+  ([aes col stat-name & {:as stat-opts}]
+   [aes {:col (if (map? col) col {:name col :factor nil})
+         :stat {:name stat-name :opts stat-opts}}]))
 
-(defn fill
-  ([col]
-   [:fill {:col (if (map? col) col {:name col :factor nil})
-           :stat {:name :id}}])
-  ([col stat-name & {:as stat-opts}]
-   [:fill {:col (if (map? col) col {:name col :factor nil})
-           :stat {:name stat-name :opts stat-opts}}]))
+(defmacro x
+  [v & rest]
+  (if (symbol? v)
+    (let [sym-name (name v)]
+      `(mapping* :x ~sym-name ~@rest))
+    (list vector :x v)))
 
-(defn facet_y
-  ([col]
-   [:facet_y {:col (if (map? col) col {:name col :factor nil})
-              :stat {:name :id}}])
-  ([col stat-name & {:as stat-opts}]
-   [:facet_y {:col (if (map? col) col {:name col :factor nil})
-              :stat {:name stat-name :opts stat-opts}}]))
+(defmacro fill
+  [v & rest]
+  (if (symbol? v)
+    (let [sym-name (name v)]
+      `(mapping* :fill ~sym-name ~@rest))
+    (list vector :fill v)))
 
-(defn y
+(defmacro color
+  [v & rest]
+  (if (symbol? v)
+    (let [sym-name (name v)]
+      `(mapping* :color ~sym-name ~@rest))
+    (list vector :color v)))
+
+(defmacro size
+  [v & rest]
+  (if (symbol? v)
+    (let [sym-name (name v)]
+      `(mapping* :size ~sym-name ~@rest))
+    (list vector :size v)))
+
+(defmacro facet_x
+  [v & rest]
+  (if (symbol? v)
+    (let [sym-name (name v)]
+      `(mapping* :facet_x ~sym-name ~@rest))
+    (list vector :facet_x v)))
+
+(defmacro facet_y
+  [v & rest]
+  (if (symbol? v)
+    (let [sym-name (name v)]
+      `(mapping* :facet_y ~sym-name ~@rest))
+    (list vector :facet_y v)))
+
+(defn y*
   ([col stat-name & {:as stat-opts}]
+   (if (= stat-name :id)
+     (log/warn "Highly recommend that you use an aggregation function like :sum :count or :avg instead!"))
    [:y {:col (if (map? col) col {:name col :factor nil})
         :stat {:name stat-name :opts stat-opts}}]))
+
+(defmacro y
+  [v & rest]
+  (cond
+    (list? v) `(y* ~v ~@rest)
+    (symbol? v) (let [sym-name (name v)]
+                  `(y* ~sym-name ~@rest))
+    :else (list vector :y v)))

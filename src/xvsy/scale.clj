@@ -62,6 +62,14 @@
         max-actual (if (coll? max-int?) (apply max max-int?) max-int?)]
     [min-actual max-actual]))
 
+(defrecord ConstantScalar
+    [value]
+  Scalar
+  (train [this _] this)
+  (->scale [this _] (constantly value))
+  Ticker
+  (->ticks [this] nil))
+
 ;; LinMinMaxScalar is for real numbers. It maps the minimum value seen
 ;; to the bottom of the range, and the maximum value seen to the top
 ;; of the range.
@@ -238,6 +246,7 @@ scalar.  [facet-data], scalar => [trained-scalar]."
 (derive ::fill ::color)
 (derive ::x ::position)
 (derive ::y ::position)
+(derive ::size ::position)
 (derive ::facet_x ::position)
 (derive ::facet_y ::position)
 (derive xvsy.scale.ModuloScalar ::facet-scalar)
@@ -275,6 +284,14 @@ scalar.  [facet-data], scalar => [trained-scalar]."
   [aes scalar]
   (->scale scalar (or (xvsy.conf/get-conf aes)
                       (throw (Exception. "scalar must have position aesthetic.")))))
+
+(defmethod guess-svg-scale [::color ConstantScalar]
+  [aes scalar]
+  (->scale scalar nil))
+
+(defmethod guess-svg-scale [::position ConstantScalar]
+  [aes scalar]
+  (->scale scalar nil))
 
 (defn guess-scalar
   "Returns a scalar for the aes-mapping"

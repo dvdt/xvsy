@@ -134,6 +134,13 @@ query")
   [x]
   (complement (nil? x)))
 
+(defn optional-aesthetic
+  [mapping scalar]
+  (cond
+    (map? mapping) scalar
+    (nil? mapping) scalar
+    :else (scale/->ConstantScalar mapping)))
+
 ;; aes-positions
 (defrecord Bar
     [direction aes-positions]
@@ -147,8 +154,8 @@ query")
             (if (stat/factor? (:y aes-mappings))
               (scale/guess-scalar (:y aes-mappings))
               (scale/default-scalar :lin-min-max-zero)))
-     :fill (scale/default-scalar :factor)
-     :color (scale/default-scalar :factor)})
+     :fill (optional-aesthetic (:fill aes-mappings) (scale/default-scalar :factor))
+     :color (optional-aesthetic (:color aes-mappings) (scale/default-scalar :factor))})
   (->svg [this geom-data]
     (let [{[x1 x2] :x [y1 y2] :y :keys [color fill]
            :or {color conf/*color* fill conf/*fill*}} geom-data]
@@ -160,13 +167,17 @@ query")
     [this sql-data]
     (position-bars this sql-data)))
 
-(defn- mean-if-vec [x] (if (coll? x) (utils/mean x) x))
+(defn- mean-if-vec [x]
+  (if (coll? x) (utils/mean x) x))
 
 (defrecord Point
     []
     Geom
     (guess-scalars [this aes-mapping]
-      (fmap scale/guess-scalar (select-keys aes-mapping [:x :y :fill :color])))
+      (merge (fmap scale/guess-scalar (select-keys aes-mapping [:x :y]))
+             (fmap (fn [m]
+                     (optional-aesthetic m (scale/guess-scalar m)))
+                   (select-keys aes-mapping [:fill :color :size]))))
     (->svg [this point-data]
       (let [{:keys [x y size color fill]
              :or {size 3, color "gray", fill "white"}} point-data]

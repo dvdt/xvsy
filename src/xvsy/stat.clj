@@ -72,10 +72,11 @@
         bin-starts (range lower upper step)
         bin-stops (concat (rest  bin-starts) [upper])
         bin-ranges (map vector bin-starts bin-stops)
+        sql-field (korma.sql.engine/field-str (:name col))
         case-statement
         (map (fn [[a b]]
                (format  "WHEN (%s >= %f) AND (%s < %f) THEN '[%f %f]'"
-                        (:name col) (float a) (:name col) (float b) (float a) (float b)))
+                        sql-field (float a) sql-field (float b) (float a) (float b)))
              bin-ranges)]
     ;; TODO: str bin names are messing up bin ordering! May need to parse into vec and sort?
     (clojure.string/join \newline (concat ["CASE"] case-statement

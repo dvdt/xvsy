@@ -199,15 +199,6 @@
      :geom-scalars trained-geom-scalars
      :facetted-geom-data (fmap utils/to-row facetted-col-data)}))
 
-(defn ->svg-geoms
-  "Returns a hiccup vector of geoms in svg."
-  [geom positioned-geoms svg-scales]
-  (let [scaled-geoms (map
-                      (fn apply-aes-scale
-                        [geom]
-                        (merge-with #(%1 %2) svg-scales geom)) positioned-geoms)]
-    (map (partial geom/->svg) scaled-geoms)))
-
 (defn render-facet-geoms
   "Returns facet=>[svg-geom-elems]"
   [facetted-geom-scales facetted-geom-data]
@@ -305,7 +296,6 @@
           ;; draw facet-x and facet-y label
           (utils/apply-key-map (fn [[facet-x facet-y] wrapper]
                                  (conj wrapper (facet-labeller facet-x facet-y))) $))]
-
     [:svg {:width width :height height :xmlns "http://www.w3.org/2000/svg"}
      [:g {:transform (translate [(nth conf/*plot-padding* 0)
                                  (nth conf/*plot-padding* 2)])}
