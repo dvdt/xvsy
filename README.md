@@ -52,7 +52,7 @@ cd xvsy && lein install && cd example/diamonds && lein ring server
 Download and run an uberjar
 ```
 wget http://davetsao.com/xvsy/diamonds-0.1.0-SNAPSHOT-standalone.jar
-PORT=3000 java -cp diamonds-0.1.0-SNAPSHOT-standalone.jar -m clojure.main
+PORT=3000 java -cp diamonds-0.1.0-SNAPSHOT-standalone.jar clojure.main -m diamonds.handler
 ```
 
 Now open [http://localhost:3000](http://localhost:3000) in your favorite web browser.
