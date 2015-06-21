@@ -38,10 +38,9 @@
 (defn apply-map
   "Returns a map as a result of calling f with the arguments given in the maps.
   Similar to merge-with."
-  [f & hashmaps]
-  (let [ks (apply clojure.set/intersection (map (comp set keys) hashmaps))
-
-        ]
+  [f m1 m2 & rest]
+  (let [hashmaps (concat [m1 m2] rest)
+        ks (apply clojure.set/intersection (map (comp set keys) hashmaps))]
     (zipmap ks (map (fn [k]
                       (apply f (map #(get % k) hashmaps))) ks))))
 
@@ -220,3 +219,12 @@
   ([a b c d e f]
    `(hash-map (keyword '~a) ~a (keyword '~b) ~b (keyword '~c) ~c
               (keyword '~d) ~d (keyword '~e) ~e (keyword '~f) ~f)))
+
+(defmacro doall-time
+  [name & body]
+  `(do
+     (print ~name)
+     (let [res# ~@body]
+       (if (coll? res#)
+         (time (doall res#))
+         (do (print \newline) res#)))))

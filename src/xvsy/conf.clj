@@ -39,6 +39,9 @@
   "Should be bound to a coll of discrete colors, or ..."
   nil)
 
+(def ^:dynamic *size*
+  nil)
+
 (def ^:dynamic *color-label*
   "Svg vector that labels the color legend"
   nil)

@@ -106,7 +106,7 @@
   [scale-map geom-data]
   (map (fn scale-geom
          [g]
-         (utils/apply-map #(%1 %2) scale-map g))
+         (merge-with #(%1 %2) scale-map g))
        geom-data))
 
 (defn wrap-facet

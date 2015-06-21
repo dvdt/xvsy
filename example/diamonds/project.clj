@@ -20,7 +20,11 @@
   :profiles
   {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
                         [ring-mock "0.1.5"]
-                        [org.clojure/tools.namespace "0.2.10"]]}
+                        [org.clojure/tools.namespace "0.2.10"]]
+         :jvm-opts [] #_["-Dcom.sun.management.jmxremote"
+                    "-Dcom.sun.management.jmxremote.ssl=false"
+                    "-Dcom.sun.management.jmxremote.authenticate=false"
+                    "-Dcom.sun.management.jmxremote.port=43210"]}
    :uberjar {:aot :all}}
   :aot []
   :main ^:skip-aot diamonds.handler)

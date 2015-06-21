@@ -7,8 +7,8 @@
    [clojure.java.io :as io]))
 
 (def diamonds-db {:classname "org.h2.Driver"
-                  :subprotocol "h2:file"
-                  :subname "diamonds-db"})
+                  :subprotocol "h2:mem"
+                  :subname "test;DB_CLOSE_DELAY=-1"})
 
 (defn slurp-diamonds
   "Returns diamonds dataset from diamonds.csv as a list of column values."

@@ -1,7 +1,8 @@
 (ns xvsy.core
   (:require [clojure.tools.logging :as log]
             [clojure.data.json]
-            [ring.util.codec])
+            [ring.util.codec]
+            [clojure.algo.generic.functor :refer [fmap]])
   (:require (xvsy  [geom :as geom]
                    [ggsql :as ggsql]
                    [scale :as scale]
@@ -159,8 +160,7 @@
 
         scalars (geom/guess-scalars geom (:aesthetics plot-spec))
 
-        scalar-trainers (utils/apply-map #(partial scale/train-global-scalars %)
-                                         scalars)
+        scalar-trainers (fmap #(partial scale/train-global-scalars %) scalars)
         facetter-trainers (if (x-facet-spec=y-facet-spec? facet-spec)
                             scale/facet-wrap
                             scale/facet-grid)
@@ -204,7 +204,6 @@
     {:dataset dataset :geom geom
      :aesthetics (into {} factor-specd-aes)
      :where (or where [])}))
-
 (defn ->urlencode-spec
   "Converts a clojure plot spec into a urlencoded spec"
   [spec]
