@@ -21,13 +21,12 @@ Clojure plotting examples
 ```clojure
 (qspec :diamonds :point
        :aes [(x CARAT)
-             (fill "white")
-             (color "steelblue")
+             (color CUT :id :no-group true)
              (size 2)
              (y PRICE :id)]
        :where [["<" :CARAT 3]])
 ```
-![](http://davetsao.com/xvsy/plot-1.svg)
+![](http://davetsao.com/xvsy/plot-1.svg?v=2)
 
 ### Price per carat of a diamond dramatically increases at 1 carat
 ###### For the best deal, buy a 0.95 carat diamond

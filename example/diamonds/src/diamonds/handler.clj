@@ -78,7 +78,7 @@
     (conf/with-conf {:plot-padding [50 100 20 50]
                      :facet-padding [30 30 0 50]
                      :color cbrew/BrBG-5}
-      (xvsy.core/plot-svg 850 500 true my-json))))
+      (xvsy.core/plot-svg 850 500 false my-json))))
 
 (defn plot-2
   "Heatmap showing ~$1500 cut off for diamonds < 0.5 carats, $2000
@@ -92,7 +92,7 @@
     (conf/with-conf {:fill cbrew/Blues-6
                      :x-legender nil #_(xvsy.legend/produce-vertical-labels
                                   (fn [[[x & _] & _]] (str x)))}
-      (xvsy.core/plot-svg 800 600 true my-json))))
+      (xvsy.core/plot-svg 800 600 false my-json))))
 
 (defn plot-3
   "Example of putting SQL statements into the plot spec. Want good
@@ -108,7 +108,7 @@
                      :facet-padding [30 0 0 50]
                      :x-legender (xvsy.legend/produce-vertical-labels
                                   (fn [[[x & _] & _]] (str x)))}
-      (xvsy.core/plot-svg 750 500 true my-json))))
+      (xvsy.core/plot-svg 750 500 false my-json))))
 
 (defn plot-4
   "Just like ggplot2, putting in a constant for an aesthetic (in
@@ -124,7 +124,7 @@
     (conf/with-conf {:fill cbrew/Blues-8 ; this is how you change color-schemes
                      :plot-padding [100 100 100 250]
                      :facet-padding [20 20 10 20]}
-      (xvsy.core/plot-svg 1400 1600 true my-json))))
+      (xvsy.core/plot-svg 1400 1600 false my-json))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Web Serving

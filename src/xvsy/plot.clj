@@ -300,7 +300,7 @@
           ;; draw facet-x and facet-y label
           (utils/apply-key-map (fn [[facet-x facet-y] wrapper]
                                  (conj wrapper (facet-labeller facet-x facet-y))) $))]
-    [:svg {:width width :height height :xmlns "http://www.w3.org/2000/svg"}
+    [:svg {:width width :height height :xmlns "http://www.w3.org/2000/svg" :version "1.1"}
      [:defs #_[:style {:type "text/css"}
              "text {font-family:
 \"Courer New\", \"Courier\", \"monospace\";
