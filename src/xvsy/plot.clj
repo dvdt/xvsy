@@ -317,7 +317,7 @@ font-size: 0.8em}"]]
                     conf/*color-label*
                     (:iscale color)
                     [:g {:transform (translate [conf/*color-legend-size*
-                                                conf/*color-legend-size*])}
+                                                (/ conf/*color-legend-size* 2)])}
                      (:ticks color)
                      [:g {:transform (translate [3 0])} (:labels color)]]])
          (if fill [:g {:class "fill-legend" :transform (translate [conf/*color-legend-size* 0])}

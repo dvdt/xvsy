@@ -175,6 +175,10 @@
   (isa? (keyword "xvsy.stat" (name (get-in aes-mapping [:stat :name])))
         ::aggregator))
 
+(defn group?
+  [aes-mapping]
+  (and (factor? aes-mapping) (not (get-in aes-mapping [:stat :opts :no-group]))))
+
 (defn factor?
   "Returns whether the stat-column aesthetical mapping is a categorical variable."
   [aes-mapping]
@@ -183,5 +187,4 @@
     (cond
       (#{:id :sql} stat-name) (-> aes-mapping :col :factor)
       (= :bin stat-name) true
-
       (aggregator? aes-mapping) false)))

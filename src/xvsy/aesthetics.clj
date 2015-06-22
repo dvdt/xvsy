@@ -42,7 +42,7 @@
   (if (map? aes-mapping)
     (let [field (stat/bind-field g aes-mapping)
           g (korma.core/fields g [field aes])
-          g (if (stat/factor? aes-mapping)
+          g (if (stat/group? aes-mapping)
               (if (= (stat/subprotocol g) "goog-bq") ; see note above.
                 (korma.core/group g aes)
                 (korma.core/group g field)) g)
@@ -96,45 +96,51 @@
 
 (defmacro x
   [v & rest]
-  (if (symbol? v)
-    (let [sym-name (name v)]
-      `(mapping* :x ~sym-name ~@rest))
-    (list vector :x v)))
+  (cond
+    (list? v) `(mapping* :x ~v ~@rest)
+    (symbol? v) (let [sym-name (name v)]
+                  `(mapping* :x ~sym-name ~@rest))
+    :else (list vector :x v)))
 
 (defmacro fill
   [v & rest]
-  (if (symbol? v)
-    (let [sym-name (name v)]
-      `(mapping* :fill ~sym-name ~@rest))
-    (list vector :fill v)))
+    (cond
+    (list? v) `(mapping* :fill ~v ~@rest)
+    (symbol? v) (let [sym-name (name v)]
+                  `(mapping* :fill ~sym-name ~@rest))
+    :else (list vector :fill v)))
 
 (defmacro color
   [v & rest]
-  (if (symbol? v)
-    (let [sym-name (name v)]
-      `(mapping* :color ~sym-name ~@rest))
-    (list vector :color v)))
+  (cond
+    (list? v) `(mapping* :color ~v ~@rest)
+    (symbol? v) (let [sym-name (name v)]
+                  `(mapping* :color ~sym-name ~@rest))
+    :else (list vector :color v)))
 
 (defmacro size
   [v & rest]
-  (if (symbol? v)
-    (let [sym-name (name v)]
-      `(mapping* :size ~sym-name ~@rest))
-    (list vector :size v)))
+    (cond
+    (list? v) `(mapping* :size ~v ~@rest)
+    (symbol? v) (let [sym-name (name v)]
+                  `(mapping* :size ~sym-name ~@rest))
+    :else (list vector :size v)))
 
 (defmacro facet_x
   [v & rest]
-  (if (symbol? v)
-    (let [sym-name (name v)]
-      `(mapping* :facet_x ~sym-name ~@rest))
-    (list vector :facet_x v)))
+    (cond
+    (list? v) `(mapping* :facet_x ~v ~@rest)
+    (symbol? v) (let [sym-name (name v)]
+                  `(mapping* :facet_x ~sym-name ~@rest))
+    :else (list vector :facet_x v)))
 
 (defmacro facet_y
   [v & rest]
-  (if (symbol? v)
-    (let [sym-name (name v)]
-      `(mapping* :facet_y ~sym-name ~@rest))
-    (list vector :facet_y v)))
+  (cond
+    (list? v) `(mapping* :facet_y ~v ~@rest)
+    (symbol? v) (let [sym-name (name v)]
+                  `(mapping* :facet_y ~sym-name ~@rest))
+    :else (list vector :facet_y v)))
 
 (defn y*
   ([col stat-name & {:as stat-opts}]

@@ -84,14 +84,9 @@
   [col-name]
   {:name col-name :factor true})
 
-(defn non-factor*
+(defn non-factor
   [col-name]
   {:name col-name :factor false})
-
-(defmacro non-factor
-  [col-sym]
-  (let [col-name (name col-sym)]
-    `(non-factor* ~col-name)))
 
 (defn spec
   [dataset geom & {:keys [aes]}]
