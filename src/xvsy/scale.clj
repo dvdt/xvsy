@@ -84,7 +84,8 @@
       (->LinMinMaxScalar new-min new-max)))
   (->scale [this range] (partial linear [minimum maximum] range))
   Ticker
-  (->ticks [this] (:ticks (ticks/search [minimum maximum]))))
+  (->ticks [this] (filter #(and (>= % minimum) (<= % maximum))
+                          (:ticks (ticks/search [minimum maximum])))))
 
 
 ;; FactorScalar keeps track of previously seen values and can produce
@@ -171,6 +172,7 @@
 (defn color-continuous
   "maps x, with domain [0, 1] to the given colors"
   [colors x]
+  {:pre [(>= x 0) (<= x 1)]}
   (let [n (count colors)
         bin (int (* n x))
         bin (if (== n bin) (- bin 1) bin)]
