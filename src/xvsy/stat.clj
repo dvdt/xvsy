@@ -17,7 +17,9 @@
 (defn subprotocol
   [g]
   (let [sub (or (get-in g [:db :subprotocol])
+                (get-in g [:db :options :subprotocol])
                 (get-in g [:db :pool :subprotocol]))]
+    (assert sub)
     (first (clojure.string/split sub #":"))))
 
 (defmulti bind-field
