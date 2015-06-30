@@ -1,11 +1,8 @@
 (ns xvsy.geom
-  (:require [clojure.tools.logging :as log])
-  (:require [clojure.algo.generic.functor :refer [fmap]]
-            [xvsy.scale :as scale])
   (:require
-   [xvsy.utils :as utils]
-   [xvsy.conf :as conf]
-   [xvsy.aesthetics]))
+    [xvsy.scale :as scale]
+    [xvsy.utils :as utils]
+    [xvsy.conf :as conf]))
 
 ;; These aesthetics, when are factor, are specified by css classes.
 (def css-aesthetics #{:color :fill
@@ -20,7 +17,9 @@
                          (-> :column aes-mapping name))]
     (str col-name  \- (-> aes datum))))
 
-(defn format-float [x] (format "%.3fpx" x))
+(defn format-float [x]
+  #?(:clj (format "%.3fpx" x))
+  #?(:cljs (str (.toString x) "px")))
 
 (defn css-classes
   "Returns a map of css defs for the given datum"
@@ -31,16 +30,16 @@
     (apply hash-map (interleave classes class-vals))))
 
 ;; aesthetic vals -> attribute pair functions
-(defn x-interval [[x1' x2']]
+(defn x-interval [[x1 x2]]
   "X Interval -> :x, :width attributes"
-  (let [x' (min x1' x2')
-        width' (Math/abs (float (- x1' x2')))]
-    [:x (format-float  x') :width (format-float width')]))
+  (let [x (min x1 x2)
+        width (utils/abs (- x1 x2))]
+    [:x (format-float x) :width (format-float width)]))
 
-(defn y-interval [[y1' y2']]
-  (let [y' (min y1' y2')
-        height' (Math/abs (float (- y1' y2')))]
-    [:y (format-float y') :height (format-float height')]))
+(defn y-interval [[y1 y2]]
+  (let [y (min y1 y2)
+        height (utils/abs (- y1 y2))]
+    [:y (format-float y) :height (format-float height)]))
 
 (defn x-point [x] [:cx x])
 (defn y-point [y] [:cy y])
@@ -173,10 +172,12 @@ query")
     []
     Geom
     (guess-scalars [this aes-mapping]
-      (merge (fmap scale/guess-scalar (select-keys aes-mapping [:x :y]))
-             (fmap (fn [m]
-                     (optional-aesthetic m (scale/guess-scalar m)))
-                   (select-keys aes-mapping [:fill :color :size]))))
+      (merge
+        (into {} (map (fn [[_ mapping]]
+                        (scale/guess-scalar mapping) (select-keys aes-mapping [:x :y]))))
+        (into {} (map (fn [[_ mapping]]
+                        (optional-aesthetic mapping (scale/guess-scalar mapping)))
+                   (select-keys aes-mapping [:color :fill :size])))))
     (->svg [this point-data]
       (let [{:keys [x y size color fill]
              :or {size 3, color "gray", fill "white"}} point-data]
@@ -199,15 +200,15 @@ query")
   (->svg [this geom-data]
     (let [{[x1 x2] :x [y1 y2] :y :keys [color fill]
            :or {color "#777777" fill "#777777"}} geom-data]
-      [:rect {:x (min x1 x2) :width (Math/abs (- x1 x2))
-              :y (min y1 y2) :height (Math/abs (- y1 y2))
+      [:rect {:x (min x1 x2) :width (utils/abs (- x1 x2))
+              :y (min y1 y2) :height (utils/abs (- y1 y2))
               :color color :fill fill}])))
 
 (defrecord Path
     []
   Geom
   (guess-scalars [this aes-mapping]
-    (fmap scale/guess-scalar aes-mapping))
+    (into {} (map (fn [[_ m]] (scale/guess-scalar m)) aes-mapping)))
   (adj-position
     [this sql-data]
     (map
@@ -227,7 +228,7 @@ query")
     [direction]
   Geom
   (guess-scalars [this aes-mapping]
-    (throw (Exception. "Not implemented")))
+    #?(:clj (throw (Exception. "Not implemented"))))
   (adj-position [this data] data)
   (->svg [this {x :x y :y color :color :or {:color "black"}}]
     (if (= :x direction)
@@ -237,8 +238,8 @@ query")
 (defrecord Text
     [svg-attrs]
   Geom
-  (guess-scalars [this aes-mapping] (throw (Exception. "Not implemented")))
-  (adj-position [this data] (throw (Exception. "Not implemented")))
+  (guess-scalars [this aes-mapping] #?(:clj (throw (Exception. "Not implemented"))))
+  (adj-position [this data] #?(:clj (throw (Exception. "Not implemented"))))
   (->svg [this {x :x, y :y, text :text}]
     [:text (merge {:x (utils/->point x) :y (utils/->point y)
                    :font-family conf/*font-family*

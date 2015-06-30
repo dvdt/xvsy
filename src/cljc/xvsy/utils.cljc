@@ -1,9 +1,7 @@
 (ns xvsy.utils
-  (:require [clojure.algo.generic.functor :refer [fmap]])
-  (:require [clojure.set])
-  (:require [clojure.walk])
-  (:require [schema.core :as s])
-  (:require [clj-time.coerce]))
+  (:require [schema.core :as s]
+            [clojure.walk]
+            [clojure.set]))
 
 (defn css
   "inspired by hiccup example: (css [\"div\" \".my-class\"] {:font \"10px sans-serif\"})
@@ -18,14 +16,6 @@
      (str (css selector style) \newline (apply css more))))
 
 (defn cumsum [a] (reductions + a))
-
-(defn split-apply-combine
-  "split, apply, combine on a seq of maps"
-  [data & [split-fn apply-fn combine-fn]]
-  (let [split (if (nil? split-fn) identity (fn [d] (group-by split-fn d)))
-        apply  (if (nil? apply-fn) identity (fn [data-split] (fmap #(fmap apply-fn %) data-split)))
-        combine (if (nil? combine-fn) identity (fn [data-apply] (fmap combine-fn data-apply)))]
-    (-> data split apply combine)))
 
 (defn apply2 [g fn args] (apply fn (conj args g)))
 
@@ -61,16 +51,6 @@
             new-uniqs (if (seen current) uniqs (conj uniqs current))]
         (recur new-seen (rest remaining) new-uniqs)))))
 
-(defmacro time2
-  "Evaluates expr and prints the time it took.  Returns the value of
-  expr."
-  {:added "1.0"}
-  [expr]
-  `(let [start# (. System (nanoTime))
-         ret# ~expr]
-     (prn (str "Elapsed time: "  (str '~expr) \ (/ (double (- (. System (nanoTime)) start#)) 1000000.0) " msecs"))
-     ret#))
-
 (defn zip
   "Equivalent to zip in python."
 [seqs]
@@ -80,6 +60,42 @@
   "computes the arithmetic mean"
   [coll]
   (/ (apply + coll) (count coll)))
+
+(defn abs
+  "Returns the absolute value of the given floating point"
+  [x]
+  #?(:clj (Math/abs (float x))
+     :cljs (.abs js/Math x)))
+
+(defn log
+  "natural logarithm for a number"
+  [x]
+  #?(:clj (Math/log x)
+     :cljs (.log js/Math x)))
+
+(defn floor
+  "Rounds a number down."
+  [x]
+  #?(:clj (Math/floor x)
+    :cljs (.floor js/Math x)))
+
+(defn ceil
+  "Rounds a number up"
+  [x]
+  #?(:clj (Math/ceil x)
+    :cljs (.ceil js/Math x)))
+
+(defn sqrt
+  [x]
+  #?(:clj (Math/sqrt x)
+     :cljs (.sqrt js/Math x)))
+
+
+(defn fmap
+  "Applies fn to every value in the map"
+  [f m]
+  {:pre [(map? m)]}
+  (into (empty m) (for [[k v] m] [k (f v)])))
 
 (defn to-columnar
   "Turns a list of maps into a map of lists.
@@ -113,13 +129,7 @@
   ""
   ([num] (log-most-sig-digit num 10))
   ([num base]
-   (-> num Math/log (/ (Math/log base)) Math/floor int)))
-
-(defn log-most-sig-digit
-  ""
-  ([num] (log-most-sig-digit num 10))
-  ([num base]
-   (-> num Math/log (/ (Math/log base)) Math/floor int)))
+   (-> num log (/ (log base)) floor int)))
 
 (defn nums->str
   "Returns a list of strings representing the numbers, with precision
@@ -128,14 +138,14 @@
   EG: [1.0 2.0 3.0] [\"1\" \"2\" \"3\"], while [1.100 1.2 1.4] ->
   [\"1.1\" \"1.2\" \"1.4\"]"
   [nums]
-  (let [absolute-diffs (map #(Math/abs (- %1 %2)) nums (rest nums))
+  (let [absolute-diffs (map #(abs (- %1 %2)) nums (rest nums))
         smallest (apply min absolute-diffs)
         log-smallest (- (log-most-sig-digit smallest) 1)
         ]
     (cond
       (< log-smallest -3) (map (partial format "%.1e") nums)
       (< log-smallest 0)
-      (map (comp (partial format (str "%." (Math/abs log-smallest) \f)) double) nums)
+      (map (comp (partial format (str "%." (abs log-smallest) \f)) double) nums)
       (> log-smallest 4) (map (comp (partial format "%.0e") double) nums)
       :else (map (comp str int) nums)
       )))
@@ -249,3 +259,33 @@
 (defn group?
   [aes-mapping]
   (and (factor? aes-mapping) (not (get-in aes-mapping [:stat :opts :no-group]))))
+
+;; directly taken from clojure.math.combinatorics. pasted in here for cljs capability
+(defn cartesian-product
+  "All the ways to take one item from each sequence"
+  [& seqs]
+  (let [v-original-seqs (vec seqs)
+        step
+        (fn step [v-seqs]
+          (let [increment
+                (fn [v-seqs]
+                  (loop [i (dec (count v-seqs)), v-seqs v-seqs]
+                    (if (= i -1) nil
+                                 (if-let [rst (next (v-seqs i))]
+                                   (assoc v-seqs i rst)
+                                   (recur (dec i) (assoc v-seqs i (v-original-seqs i)))))))]
+            (when v-seqs
+              (cons (map first v-seqs)
+                (lazy-seq (step (increment v-seqs)))))))]
+    (when (every? seq seqs)
+      (lazy-seq (step v-original-seqs)))))
+
+(defn ->xy
+  "Convert coordinates (potentially map of `{:x :y}`) to 2-vector."
+  [coordinates]
+  (cond (and (vector? coordinates) (= 2 (count coordinates))) coordinates
+        (map? coordinates) [(:x coordinates) (:y coordinates)]))
+;; from c2.svg
+(defn translate
+  [coordinates]
+  (let [[x y] (->xy coordinates)] (str "translate(" (float x) "," (float y) ")")))

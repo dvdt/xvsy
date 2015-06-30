@@ -1,11 +1,10 @@
 (ns xvsy.scale
   "Namespace for mapping data onto aesthetic (i.e. x, y, color, etc.)
   coordinates."
-  (:require [clojure.tools.logging :as log]
-            [clojure.math.combinatorics :refer [cartesian-product]]
-            [c2.ticks :as ticks]
+  (:require [c2.ticks :as ticks]
             [vomnibus.color-brewer :as color-brewer]
-            [xvsy.conf]))
+            [xvsy.conf]
+            [xvsy.utils :as utils]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Protocols and Multimethods
@@ -24,7 +23,7 @@
 (defmulti guess-svg-scale
   "Returns a function of type: scalar -> svg-scale. Define methods to set default scales.
   args: [aes scalar]"
-  (fn [aes scalar] [(keyword "xvsy.scale" (name aes)) (class scalar)]))
+  (fn [aes scalar] [(keyword "xvsy.scale" (name aes)) (type scalar)]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Records
@@ -81,7 +80,7 @@
           [data-min data-max] (interval-or-point-min-max non-nil-data)
           new-min (min data-min minimum)
           new-max (max data-max maximum)]
-      (->LinMinMaxScalar new-min new-max)))
+      (LinMinMaxScalar. new-min new-max)))
   (->scale [this range] (partial linear [minimum maximum] range))
   Ticker
   (->ticks [this] (filter #(and (>= % minimum) (<= % maximum))
@@ -121,7 +120,7 @@
       (fn compose-to-scale [val] (reduce compose-scales final-range (map #(%1 %2) scales val)))))
   Ticker
   (->ticks [this]
-    (apply cartesian-product (map ->ticks scalars))
+    (apply utils/cartesian-product (map ->ticks scalars))
     (map vector (->ticks (first scalars)))))
 
 
@@ -183,7 +182,8 @@
   the given args."
   ([scalar-type]
    (case scalar-type
-     :lin-min-max (->LinMinMaxScalar Long/MAX_VALUE Long/MIN_VALUE)
+     :lin-min-max #?(:clj (->LinMinMaxScalar Long/MAX_VALUE Long/MIN_VALUE)
+                     :cljs (->LinMinMaxScalar (.-MAX_VALUE js/Number) (.-MIN_VALUE js/Number)))
      :lin-min-max-zero (->LinMinMaxScalar 0 0)
      :factor (->FactorScalar #{} compare)
      :modulo (->ModuloScalar (default-scalar :factor) 4)
@@ -210,9 +210,9 @@
   Attempts to make row ~ col.
   Returns [ncols nrows]"
   [n]
-  (let [sqrt-n (-> n Math/sqrt Math/ceil)
+  (let [sqrt-n (-> n utils/sqrt utils/ceil)
         cols (int sqrt-n)
-        rows (int (Math/ceil (/ n sqrt-n)))]
+        rows (int (utils/ceil (/ n sqrt-n)))]
     [cols rows]))
 
 (defn train-global-scalars

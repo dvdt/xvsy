@@ -1,16 +1,11 @@
 (ns xvsy.plot
   "This namespace is responsible for generating svg plots from sql data."
   (:require
-   [clojure.zip :as zip]
-   [clojure.algo.generic.functor :refer [fmap]]
-   [clojure.tools.logging :as log]
-   [schema.core :as s]
-   [xvsy.utils :as utils]
+   [xvsy.utils :as utils :refer [translate fmap]]
    [xvsy.conf :as conf]
    [xvsy.scale :as scale]
    [xvsy.geom :as geom]
-   [xvsy.legend :as legend]
-   [c2.svg :refer [translate transform-to-center]]))
+   [xvsy.legend :as legend]))
 
 (defn area-dims
   "Given the overall plot width and height and facet scalars, returns
@@ -250,7 +245,7 @@
     (cond
       (and (nil? facet-x) (nil? facet-y)) nil
       (and facet-x facet-y) [:text attrs
-                             (format "(%s, %s)" facet-x facet-y)]
+                             (str \( facet-x  ", " facet-y \))]
       (nil? facet-x) [:text attrs (str facet-y)]
       (nil? facet-y) [:text attrs (str facet-x)])))
 

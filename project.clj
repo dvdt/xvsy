@@ -3,7 +3,7 @@
   :url "http://davetsao.com/blog/2015-06-01-simple-easy-data-viz.html"
   :license {:name "Eclipse Public License"
             :url  "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.7.0-RC2"]
+  :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "0.0-3211"]
                  [org.clojure/algo.generic "0.1.2"]
                  [org.clojure/math.combinatorics "0.0.8"]
@@ -44,7 +44,7 @@
             [lein-figwheel "0.3.5"]]
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
   :cljsbuild {:builds [{:id "dev"
-                        :source-paths ["src/cljs" #_"src/cljc"]
+                        :source-paths ["src/cljs" "src/cljc"]
 
                         :figwheel {:on-jsload "xvsy.client.core/main"}
 

@@ -5,13 +5,10 @@
   and label are also rendered. Using a legend is straightforward: the
   the caller has to merely position it. (for x and y legends, they
   ought to be positioned precisely)."
-  (:require c2.ticks)
-  (:require c2.svg)
-  (:require [xvsy.utils :as utils])
-  (:require [xvsy.scale :as scale])
-  (:require [xvsy.geom :as geom])
-  (:require [xvsy.conf :as conf]))
-
+  (:require [xvsy.conf :as conf]
+            [xvsy.geom :as geom]
+            [xvsy.scale :as scale]
+            [xvsy.utils :refer [translate] :as utils]))
 (def scientific-orders [1000000 1000 1])
 (def eps 0.000000001)
 (defn sci-notation
@@ -81,7 +78,7 @@
 
 (defn vertical-labels
   [tick position]
-  [:text {:transform (format "%s rotate(270,0,0)" (c2.svg/translate [position 0]))
+  [:text {:transform (str (translate [position 0]) \space "rotate(270,0,0)")
           :class "tick-label"
           :text-anchor "end"
           :dy "0.3em"
@@ -89,12 +86,13 @@
           :font-family conf/*font-family*
           :font-size conf/*font-size*
           }
+
    (->str tick)])
 
 (defn produce-vertical-labels
   [tick-labeller]
   (fn [aes-val svg-val]
-    [:text {:transform (format "%s rotate(270,0,0)" (c2.svg/translate [svg-val 0]))
+    [:text {:transform (str (translate [svg-val 0]) \space "rotate(270,0,0)")
             :class "tick-label"
             :text-anchor "end"
             :dy "0.3em"

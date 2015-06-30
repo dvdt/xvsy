@@ -18,9 +18,7 @@
   |                         for labels, legends                            |
   |                                                                        |
   |------------------------------------------------------------------------|
-  Every var in this namespace will be used to generate an api?
-  "
-  (:refer-clojure :exlcude [binding]))
+  Every var in this namespace will be used to generate an api?")
 
 (def ^:dynamic *aesthetics*
   "Defines an ordering of aesthetics for conducting group-by and
@@ -80,24 +78,41 @@
 (def ^:dynamic *font-family* "monospace")
 (def ^:dynamic *font-size* "12")
 
-(defn kw->var
-  [kw]
-  (intern 'xvsy.conf (symbol (str \* (name kw) \*))))
 
 (defn get-conf
   "Returns the config setting for the given kw or str."
   ([v]
-   (deref (kw->var v)))
-  ([] (into {} (map #(vector % (get-conf %)) [:aesthetics :plot-padding
-                                             :facet-padding :color
-                                             :color-label :fill
-                                             :fill-label :x :x-label
-                                             :y :y-label :facet_x
-                                             :facet_y :geom
-                                             :fill-legend-size
-                                             :color-legend-size]))))
-(defmacro with-conf
-  [bindings & body]
-  (let [starred-vars (map kw->var (keys bindings))
-        starred-bindings (zipmap starred-vars (vals bindings))]
-    `(clojure.core/with-bindings ~starred-bindings ~@body)))
+   (get get-conf v))
+  ([]
+   {:aesthetics *aesthetics*
+    :plot-padding *plot-padding*
+    :facet-padding *facet-padding*
+    :color *color*
+    :color-label *color-label*
+    :color-legend-size *color-legend-size*
+    :fill *fill*
+    :fill-label *fill-label*
+    :fill-legend-size *fill-legend-size*
+    :x *x*
+    :x-label *x-label*
+    :x-legender *x-legender*
+    :y *y*
+    :y-label *y-label*
+    :y-legender *y-legender*
+    :facet_x *facet_x*
+    :facet_y *facet_y*
+    :geom *geom*
+    }))
+
+#?(:clj
+    (defn kw->var
+           [kw]
+           (intern 'xvsy.conf (symbol (str \* (name kw) \*))))
+    )
+#?(:clj
+   (defmacro with-conf
+     [bindings & body]
+     (let [starred-vars (map kw->var (keys bindings))
+           starred-bindings (zipmap starred-vars (vals bindings))]
+       `(clojure.core/with-bindings ~starred-bindings ~@body))))
+
