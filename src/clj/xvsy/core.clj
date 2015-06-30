@@ -125,7 +125,7 @@
     Should deconstruct to [facet_x_mapping facet_y_mapping]."
   [^xvsy.geom.Geom geom aes-mappings where-preds entity facet-mappings]
   (let [facet-mappings (filter identity facet-mappings)]
-    (assert (reduce (fn [acc [a m]] (and a (stat/factor? m))) true facet-mappings)
+    (assert (reduce (fn [acc [a m]] (and a (utils/factor? m))) true facet-mappings)
             "All facet-mappings must be factors.")
     (-> (korma.core/select* entity)
         (assoc :aesthetics {})

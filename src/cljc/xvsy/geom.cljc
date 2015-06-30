@@ -1,8 +1,7 @@
 (ns xvsy.geom
   (:require [clojure.tools.logging :as log])
   (:require [clojure.algo.generic.functor :refer [fmap]]
-            [xvsy.scale :as scale]
-            [xvsy.stat :as stat])
+            [xvsy.scale :as scale])
   (:require
    [xvsy.utils :as utils]
    [xvsy.conf :as conf]
@@ -147,11 +146,11 @@ query")
   Geom
   (guess-scalars [this aes-mappings]
     {:x (if (= :x direction) (scale/default-scalar :compose)
-            (if (stat/factor? (:x aes-mappings))
+            (if (utils/factor? (:x aes-mappings))
               (scale/guess-scalar (:x aes-mappings))
               (scale/default-scalar :lin-min-max-zero)))
      :y (if (= :y direction) (scale/default-scalar :compose)
-            (if (stat/factor? (:y aes-mappings))
+            (if (utils/factor? (:y aes-mappings))
               (scale/guess-scalar (:y aes-mappings))
               (scale/default-scalar :lin-min-max-zero)))
      :fill (optional-aesthetic (:fill aes-mappings) (scale/default-scalar :factor))

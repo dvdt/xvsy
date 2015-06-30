@@ -5,7 +5,8 @@
             [korma.core :refer [fields group]]
             [clojure.tools.logging :as log]
             [xvsy.conf :as conf :refer [*aesthetics*]]
-            [xvsy.stat :as stat]))
+            [xvsy.stat :as stat]
+            [xvsy.utils :as utils]))
 
 (defn order-aes
   "Returns the aesthetics in aes-mappings, in aesthetic order."
@@ -42,7 +43,7 @@
   (if (map? aes-mapping)
     (let [field (stat/bind-field g aes-mapping)
           g (korma.core/fields g [field aes])
-          g (if (stat/group? aes-mapping)
+          g (if (utils/group? aes-mapping)
               (if (= (stat/subprotocol g) "goog-bq") ; see note above.
                 (korma.core/group g aes)
                 (korma.core/group g field)) g)

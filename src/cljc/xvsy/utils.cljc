@@ -228,3 +228,24 @@
        (if (coll? res#)
          (time (doall res#))
          (do (print \newline) res#)))))
+
+(defn aggregator?
+  "Determines whether the given aesthetic mapping will project the column
+  onto a scalar value."
+  [aes-mapping]
+  (isa? (keyword "xvsy.stat" (name (get-in aes-mapping [:stat :name])))
+    ::aggregator))
+
+(defn factor?
+  "Returns whether the stat-column aesthetical mapping is a categorical variable."
+  [aes-mapping]
+  {:post [(-> % nil? not)]}
+  (let [stat-name (-> aes-mapping :stat :name)]
+    (cond
+      (#{:id :sql} stat-name) (-> aes-mapping :col :factor)
+      (= :bin stat-name) true
+      (aggregator? aes-mapping) false)))
+
+(defn group?
+  [aes-mapping]
+  (and (factor? aes-mapping) (not (get-in aes-mapping [:stat :opts :no-group]))))
