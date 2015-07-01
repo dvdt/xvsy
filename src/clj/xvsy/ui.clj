@@ -10,6 +10,7 @@
             [xvsy.utils :as utils]
             [xvsy.stat :as stat]
             [xvsy.ggsql :as ggsql]
+            [xvsy.macros :as macros]
             [xvsy.schemers :as schemers]))
 
 (def REACT-OPT-KEY
@@ -216,7 +217,7 @@
         pred (*validate* pred-schema pred)
         expr2-schema (schemers/where-val-schemer dataset expr1 pred)
         expr2 (*validate* expr2-schema expr2)]
-    {:data (utils/remap expr1 pred expr2)
+    {:data (macros/remap expr1 pred expr2)
      :schema {:expr1 expr1-schema :expr2 expr2-schema :pred pred-schema}}))
 
 (defn validate-where-keys
@@ -263,6 +264,6 @@
                 :geom geom-schema
                 :aesthetics aesthetics-schema
                 (s/optional-key :where) where-schema}]
-    {:data (->> (utils/remap dataset geom aesthetics where)
+    {:data (->> (macros/remap dataset geom aesthetics where)
                 utils/remove-nils)
      :schema schema}))

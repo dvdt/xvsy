@@ -13,9 +13,9 @@
   [{:x :x1} [:x {:column {:name :x}}]] => \"x-x1\""
   [datum [aes aes-mapping]]
   (let [col-name (if (coll? (:column aes-mapping))
-                         (-> :column aes-mapping first name)
-                         (-> :column aes-mapping name))]
-    (str col-name  \- (-> aes datum))))
+                   (-> :column aes-mapping first name)
+                   (-> :column aes-mapping name))]
+    (str col-name \- (-> aes datum))))
 
 (defn format-float [x]
   #?(:clj (format "%.3fpx" x))
@@ -53,7 +53,7 @@
         attr-val-pairs (reduce (fn [attr-vals, aes]
                                  (if-let [aes-val (aes aes-datum)]
                                    (conj attr-vals ((aes aes-svg) aes-val))
-                                   attr-vals)) []  aess)]
+                                   attr-vals)) [] aess)]
     (->> attr-val-pairs flatten (apply hash-map))))
 
 
@@ -62,7 +62,7 @@
   (reduce (fn [acc, [a m]]
             (if (:factor m)
               (update-in acc [:class] str " "
-                         (css-class-name raw-datum [a m])) acc)) scaled-datum aes-mappings))
+                (css-class-name raw-datum [a m])) acc)) scaled-datum aes-mappings))
 (defn dodge
   "Returns data dodged on given aesthetics. For example, dodging by [:x :c] on:
   [{:x :a :c :1} {:x :a :c :2}] => [{:x [:a :1] :c :1} {:x [:a :2] :c :2}].
@@ -89,13 +89,13 @@
   and returned unchanged."
   [dodged-data group-aes by-aes]
   (if (nil? by-aes) dodged-data
-      (let [stack-grouped-rows
-            (fn [rows]
-              (let [nil-rows (group-by (comp nil? by-aes) rows)]
-                (concat (stack-within-group by-aes (nil-rows false))
-                        (nil-rows true))))
-            groups (vals (group-by group-aes dodged-data))]
-        (mapcat stack-grouped-rows groups))))
+                    (let [stack-grouped-rows
+                          (fn [rows]
+                            (let [nil-rows (group-by (comp nil? by-aes) rows)]
+                              (concat (stack-within-group by-aes (nil-rows false))
+                                (nil-rows true))))
+                          groups (vals (group-by group-aes dodged-data))]
+                      (mapcat stack-grouped-rows groups))))
 
 (defn position-bars
   "Dodges and stacks bars.  Bars are aligned along an axis (unless
@@ -105,15 +105,15 @@
   nil values are not included."
   [geom layer-data]
   (let [{:keys [direction aes-positions] :or
-           {direction :x
-            aes-positions []}} geom
+         {direction :x
+          aes-positions []}} geom
         dodged-aes (filter
-                       (fn [[aes p]] (= :dodge p)) aes-positions)
+                     (fn [[aes p]] (= :dodge p)) aes-positions)
         ;; the first dodged aesthetic is always the "direction"
         dodged-aes (map first (conj dodged-aes [direction :dodge]))
         stacked-aes (if (= :x direction) :y :x)
         pos-data (-> layer-data (dodge dodged-aes)
-                     (stack direction stacked-aes))]
+                   (stack direction stacked-aes))]
     pos-data))
 
 (defn jitter-points
@@ -141,17 +141,17 @@ query")
 
 ;; aes-positions
 (defrecord Bar
-    [direction aes-positions]
+  [direction aes-positions]
   Geom
   (guess-scalars [this aes-mappings]
     {:x (if (= :x direction) (scale/default-scalar :compose)
-            (if (utils/factor? (:x aes-mappings))
-              (scale/guess-scalar (:x aes-mappings))
-              (scale/default-scalar :lin-min-max-zero)))
+                             (if (utils/factor? (:x aes-mappings))
+                               (scale/guess-scalar (:x aes-mappings))
+                               (scale/default-scalar :lin-min-max-zero)))
      :y (if (= :y direction) (scale/default-scalar :compose)
-            (if (utils/factor? (:y aes-mappings))
-              (scale/guess-scalar (:y aes-mappings))
-              (scale/default-scalar :lin-min-max-zero)))
+                             (if (utils/factor? (:y aes-mappings))
+                               (scale/guess-scalar (:y aes-mappings))
+                               (scale/default-scalar :lin-min-max-zero)))
      :fill (optional-aesthetic (:fill aes-mappings) (scale/default-scalar :factor))
      :color (optional-aesthetic (:color aes-mappings) (scale/default-scalar :factor))})
   (->svg [this geom-data]
@@ -169,28 +169,27 @@ query")
   (if (coll? x) (utils/mean x) x))
 
 (defrecord Point
-    []
-    Geom
-    (guess-scalars [this aes-mapping]
-      (merge
-        (into {} (map (fn [[_ mapping]]
-                        (scale/guess-scalar mapping) (select-keys aes-mapping [:x :y]))))
-        (into {} (map (fn [[_ mapping]]
-                        (optional-aesthetic mapping (scale/guess-scalar mapping)))
-                   (select-keys aes-mapping [:color :fill :size])))))
-    (->svg [this point-data]
-      (let [{:keys [x y size color fill]
-             :or {size 3, color "gray", fill "white"}} point-data]
-        (when (and x y)
-          [:circle {:cx (mean-if-vec x)
-                    :cy (mean-if-vec y)
-                    :r size
-                    :stroke color
-                    :fill fill}])))
-    (adj-position [this sql-data] sql-data))
+  []
+  Geom
+  (guess-scalars [this aes-mapping]
+    (merge
+      (utils/fmap scale/guess-scalar (select-keys aes-mapping [:x :y]))
+      (utils/fmap (fn [mapping]
+                    (optional-aesthetic mapping (scale/guess-scalar mapping)))
+        (select-keys aes-mapping [:size :fill :color]))))
+  (->svg [this point-data]
+    (let [{:keys [x y size color fill]
+           :or {size 3, color "gray", fill "white"}} point-data]
+      (when (and x y)
+        [:circle {:cx (mean-if-vec x)
+                  :cy (mean-if-vec y)
+                  :r size
+                  :stroke color
+                  :fill fill}])))
+  (adj-position [this sql-data] sql-data))
 
 (defrecord Bin2D
-    []
+  []
   Geom
   (guess-scalars [this aes-mapping]
     {:x (scale/guess-scalar (:x aes-mapping))
@@ -205,17 +204,17 @@ query")
               :color color :fill fill}])))
 
 (defrecord Path
-    []
+  []
   Geom
   (guess-scalars [this aes-mapping]
     (into {} (map (fn [[_ m]] (scale/guess-scalar m)) aes-mapping)))
   (adj-position
     [this sql-data]
     (map
-     (fn pair-xy [{x1 :x y1 :y :as datum} {x2 :x y2 :y}]
-       (-> datum (assoc :x [(utils/->point x1) (utils/->point x2)])
-           (assoc :y [(utils/->point y1) (utils/->point y2)])))
-         sql-data (rest sql-data)))
+      (fn pair-xy [{x1 :x y1 :y :as datum} {x2 :x y2 :y}]
+        (-> datum (assoc :x [(utils/->point x1) (utils/->point x2)])
+          (assoc :y [(utils/->point y1) (utils/->point y2)])))
+      sql-data (rest sql-data)))
   (->svg
     [this {[x1 x2] :x
            [y1 y2] :y
@@ -225,7 +224,7 @@ query")
     [:line {:x1 x1 :x2 x2 :y1 y1 :y2 y2 :stroke color}]))
 
 (defrecord Tick
-    [direction]
+  [direction]
   Geom
   (guess-scalars [this aes-mapping]
     #?(:clj (throw (Exception. "Not implemented"))))
@@ -236,7 +235,7 @@ query")
       [:line {:x1 0 :x2 x :y1 y :y2 y :stroke color}])))
 
 (defrecord Text
-    [svg-attrs]
+  [svg-attrs]
   Geom
   (guess-scalars [this aes-mapping] #?(:clj (throw (Exception. "Not implemented"))))
   (adj-position [this data] #?(:clj (throw (Exception. "Not implemented"))))

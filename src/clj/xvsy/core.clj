@@ -5,6 +5,7 @@
             [clojure.algo.generic.functor :refer [fmap]])
   (:require (xvsy  [geom :as geom]
                    [ggsql :as ggsql]
+                   [macros :as macros]
                    [scale :as scale]
                    [stat :as stat]
                    [aesthetics :as aesthetics]
@@ -161,21 +162,21 @@
                             scale/facet-grid)
         p (plot/->plot geom scalar-trainers facetter-trainers layer-data)
         [_ _ [geom-w geom-h]] (plot/area-dims width height (:facet-scalars p))]
-    (conf/with-conf  {:geom geom
-                      :x (or conf/*x* [0 geom-w])
-                      :y (or conf/*y* [geom-h 0])
-                      :x-label (or conf/*x-label* (x-label (:x aesthetics)))
-                      :y-label (or conf/*y-label* (y-label (:y aesthetics)))
-                      :fill-label (or conf/*fill-label* (aes-label (:fill aesthetics)))
-                      :color-label (or conf/*color-label* (aes-label (:color aesthetics)))}
+    (macros/with-conf  {:geom geom
+                        :x (or conf/*x* [0 geom-w])
+                        :y (or conf/*y* [geom-h 0])
+                        :x-label (or conf/*x-label* (x-label (:x aesthetics)))
+                        :y-label (or conf/*y-label* (y-label (:y aesthetics)))
+                        :fill-label (or conf/*fill-label* (aes-label (:fill aesthetics)))
+                        :color-label (or conf/*color-label* (aes-label (:color aesthetics)))}
       (doall (time (hiccup.core/html
-                    (list "<?xml version=\"1.0\" standalone=\"no\"?>"
-                          \newline
-                          (if (not inline)
-                            (str "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"
+                     (list "<?xml version=\"1.0\" standalone=\"no\"?>"
+                       \newline
+                       (if (not inline)
+                         (str "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"
                     \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">"
-                                 \newline))
-                          (plot/layout-geoms [width height] geom p))))))))
+                           \newline))
+                       (plot/layout-geoms [width height] geom p))))))))
 
 (def m-plot-svg (memoize plot-svg))
 

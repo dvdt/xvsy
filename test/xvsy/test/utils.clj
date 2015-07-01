@@ -3,7 +3,7 @@
             [xvsy.utils :refer :all]))
 
 ;; TODO: make this a real test or delete it
-(deftest test-nums->str
+#_(deftest test-nums->str
   (let [small-nums (range 0.0 1e-4 1.5e-5)
         med-nums (range 0 10 1.5)
         large-nums (range 0 100.1 15.5)

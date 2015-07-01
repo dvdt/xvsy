@@ -60,6 +60,10 @@
                                    :outputdi-to "resources/public/js/compiled/app.js"
                                    :optimizations :advanced
                                    :pretty-print false}}]}
+  :figwheel {:css-dirs ["resources/public"]
+             :nrepl-port 7888
+
+             }
   :profiles
   {:dev {:dependencies []}
    :production {:aot :all}

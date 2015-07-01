@@ -82,7 +82,7 @@
 (defn get-conf
   "Returns the config setting for the given kw or str."
   ([v]
-   (get get-conf v))
+   (get (get-conf) v))
   ([]
    {:aesthetics *aesthetics*
     :plot-padding *plot-padding*
@@ -103,16 +103,3 @@
     :facet_y *facet_y*
     :geom *geom*
     }))
-
-#?(:clj
-    (defn kw->var
-           [kw]
-           (intern 'xvsy.conf (symbol (str \* (name kw) \*))))
-    )
-#?(:clj
-   (defmacro with-conf
-     [bindings & body]
-     (let [starred-vars (map kw->var (keys bindings))
-           starred-bindings (zipmap starred-vars (vals bindings))]
-       `(clojure.core/with-bindings ~starred-bindings ~@body))))
-

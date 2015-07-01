@@ -105,13 +105,9 @@
 
 (defn to-row
   [map-of-colls]
-  "Turns a map of lists to a list of structs"
-  (let [basis (apply create-struct (keys map-of-colls))]
-    (reduce (fn bind-row-data
-              [acc, [k data]]
-              (map #(assoc %1 k %2) acc data))
-            (repeat (struct basis))
-            map-of-colls)))
+  "Turns a map of lists to a list of maps"
+  (reduce (fn [acc [k vals]]
+            (map #(assoc %1 k %2) acc vals)) (repeat {}) map-of-colls))
 
 (defn get-many
   [keys]
@@ -131,7 +127,7 @@
   ([num base]
    (-> num log (/ (log base)) floor int)))
 
-(defn nums->str
+#_(defn nums->str
   "Returns a list of strings representing the numbers, with precision
    up to the most-significant-digit - 1 in the differences between the
    nums.
@@ -209,47 +205,20 @@
   [x]
   (and (pair? x) (s/optional-key? (first x))))
 
-(defmacro remap
-  "\"restructures\" a map. For example:
-  (let [a 1 b 2 c 3]
-  (remap a b c))
-  => {:a 1 :b 2 :c3}"
-  ([a]
-   `(hash-map (keyword '~a) ~a))
-  ([a b]
-   `(hash-map (keyword '~a) ~a (keyword '~b) ~b))
-  ([a b c]
-   `(hash-map (keyword '~a) ~a (keyword '~b) ~b (keyword '~c) ~c))
-  ([a b c d]
-   `(hash-map (keyword '~a) ~a (keyword '~b) ~b (keyword '~c) ~c
-              (keyword '~d) ~d))
-  ([a b c d e]
-   `(hash-map (keyword '~a) ~a (keyword '~b) ~b (keyword '~c) ~c
-              (keyword '~d) ~d (keyword '~e) ~e))
-  ([a b c d e f]
-   `(hash-map (keyword '~a) ~a (keyword '~b) ~b (keyword '~c) ~c
-              (keyword '~d) ~d (keyword '~e) ~e (keyword '~f) ~f)))
 
-(defmacro doall-time
-  [name & body]
-  `(do
-     (print ~name)
-     (let [res# ~@body]
-       (if (coll? res#)
-         (time (doall res#))
-         (do (print \newline) res#)))))
 
 (defn aggregator?
   "Determines whether the given aesthetic mapping will project the column
   onto a scalar value."
   [aes-mapping]
   (isa? (keyword "xvsy.stat" (name (get-in aes-mapping [:stat :name])))
-    ::aggregator))
+    :xvsy.stat/aggregator))
 
 (defn factor?
   "Returns whether the stat-column aesthetical mapping is a categorical variable."
   [aes-mapping]
   {:post [(-> % nil? not)]}
+  (prn aes-mapping)
   (let [stat-name (-> aes-mapping :stat :name)]
     (cond
       (#{:id :sql} stat-name) (-> aes-mapping :col :factor)

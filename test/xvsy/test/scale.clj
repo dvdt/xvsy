@@ -1,12 +1,13 @@
 (ns xvsy.test.scale
   (:use clojure.test)
-  (:use clojure.math.combinatorics)
-  (:use xvsy.utils)
+  (:require [clojure.math.combinatorics :refer [cartesian-product]])
+  (:require xvsy.utils)
   (:require
    [xvsy.conf :as conf]
    [xvsy.stat :as stat]
    [xvsy.aesthetics :as aesthetics]
-   [xvsy.scale :refer :all]))
+   [xvsy.scale :refer :all]
+   [xvsy.macros :refer [with-conf]]))
 
 (defn float= [a b] (< (Math/abs (- a b)) 0.000001))
 (deftest interval-mins
@@ -80,11 +81,11 @@
 
 (deftest test-guess-scale
   (testing "guess factor scale"
-    (conf/with-conf {:x [0 2]}
+    (with-conf {:x [0 2]}
       (is (= [0.0 1.0]
-             (doall
+            (doall
               (:a (guess-svg-scale :x
-                                   (-> (default-scalar :factor) (train [:a :b])))))))))
+                    (-> (default-scalar :factor) (train [:a :b])))))))))
   (testing "do lein clean if this fails"
     ;; If this test fails, make sure to run lein clean to blow away AOT compiled  classes.
     (is (instance? xvsy.scale.LinMinMaxScalar (->LinMinMaxScalar 0 1)))

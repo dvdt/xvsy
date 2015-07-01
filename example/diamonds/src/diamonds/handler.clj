@@ -11,6 +11,7 @@
             [xvsy.geom :as geom]
             [xvsy.plot :as plot]
             [xvsy.scale :as scale]
+            [xvsy.macros :refer [with-conf]]
             [xvsy.aesthetics :as aes :refer [x y fill facet_y facet_x color size]]
             [xvsy.handlers]
             [xvsy.goog-bq :as goog-bq]
@@ -70,14 +71,14 @@
    0.5, 1, 1.5 and 2.0 carats."
   []
   (let [my-json (qspec :diamonds :point
-                       :aes [(x CARAT)
-                             (color CUT :id :no-group true)
-                             (size 2)
-                             (y PRICE :id)]
-                       :where [["<" :CARAT 3]])]
-    (conf/with-conf {:plot-padding [50 100 20 50]
-                     :facet-padding [30 30 0 50]
-                     :color cbrew/BrBG-5}
+                  :aes [(x CARAT)
+                        (color CUT :id :no-group true)
+                        (size 2)
+                        (y PRICE :id)]
+                  :where [["<" :CARAT 3]])]
+    (with-conf {:plot-padding [50 100 20 50]
+                :facet-padding [30 30 0 50]
+                :color cbrew/BrBG-5}
       (xvsy.core/plot-svg 850 500 false my-json))))
 
 (defn plot-2
@@ -89,7 +90,7 @@
                              (fill CARAT :count)
                              (y PRICE :bin :lower 0 :upper 3000 :nbins 20)]
                        :where [["<" :PRICE 3000] ["<" :CARAT 1.5] [">" :CARAT 0.30]])]
-    (conf/with-conf {:fill cbrew/Blues-6
+    (with-conf {:fill cbrew/Blues-6
                      :x-legender nil #_(xvsy.legend/produce-vertical-labels
                                   (fn [[[x & _] & _]] (str x)))}
       (xvsy.core/plot-svg 800 600 false my-json))))
@@ -104,7 +105,7 @@
                      (y (non-factor "AVG(PRICE / CARAT)") :sql)
                      #_(facet_y COLOR)
                      #_(fill CUT)])]
-    (conf/with-conf {:plot-padding [50 0 0 50]
+    (with-conf {:plot-padding [50 0 0 50]
                      :facet-padding [30 0 0 50]
                      :x-legender (xvsy.legend/produce-vertical-labels
                                   (fn [[[x & _] & _]] (str x)))}
@@ -115,15 +116,15 @@
   this case \"orange\") causes all geoms to have that value."
   []
   (let [my-json (qspec :diamonds :point
-                       :aes [(x CARAT :bin :lower 0 :upper 5.5 :nbins 11)
-                             (fill COLOR)
-                             (color "orange")
-                             (y PRICE :avg)
-                             (facet_x COLOR)
-                             (facet_y CLARITY)])]
-    (conf/with-conf {:fill cbrew/Blues-8 ; this is how you change color-schemes
-                     :plot-padding [100 100 100 250]
-                     :facet-padding [20 20 10 20]}
+                  :aes [(x CARAT :bin :lower 0 :upper 5.5 :nbins 11)
+                        (fill COLOR)
+                        (color "orange")
+                        (y PRICE :avg)
+                        (facet_x COLOR)
+                        (facet_y CLARITY)])]
+    (with-conf {:fill cbrew/Blues-8 ; this is how you change color-schemes
+                :plot-padding [100 100 100 250]
+                :facet-padding [20 20 10 20]}
       (xvsy.core/plot-svg 1400 1600 false my-json))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -133,7 +134,7 @@
 
   ;; This browser UI is meant to act as standalone data exploration console.
   (GET "/" []
-       (ring.util.response/redirect "/index.html"))
+       (ring.util.response/redirect "/xvsy.html"))
 
 ;; The embed version of plotting UI is meant for sticking into
   ;; iFrames and embedding on external sites.

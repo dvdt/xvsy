@@ -19,7 +19,7 @@
             [xvsy.core :as core]
             [xvsy.ggsql :as ggsql]
             [xvsy.geom :as geom]
-            [xvsy.conf :as conf]))
+            [xvsy.macros :refer [with-conf]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Web routes
@@ -49,7 +49,7 @@
                w (if (< w 100) 1400 w)
                h (if (string? height) (Integer/parseInt height) height)
                h (if (< h 100) 800 h)]
-           (conf/with-conf {:plot-padding [50 125 10 50]
+           (with-conf {:plot-padding [50 125 10 50]
                             :facet-padding [30 10 10 30]
                             :geom (geom/default-geom (:geom coerced-spec))
                             :x-label (core/x-label (:x aesthetics))
@@ -76,7 +76,7 @@
 
 (defroutes front-end-app
   (GET "/" []
-       (redirect "/index.html"))
+       (redirect "/xvsy.html"))
   (GET "/embed" []
        (redirect "/embed.html"))
   (route/resources "/")
