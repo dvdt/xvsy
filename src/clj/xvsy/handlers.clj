@@ -24,6 +24,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Web routes
 
+(defn coerce-json-spec
+  [spec]
+  (binding [ui/*validate* ui/json-validator]
+    (let [data (-> spec json/read-str walk/keywordize-keys utils/remove-nils)
+          {coerced-spec :data} (ui/validate-spec data)]
+      (doall coerced-spec))))
+
 (defn schema-api
   [spec]
   (when spec
@@ -33,31 +40,47 @@
             react-schema (ui/reactify-schema schema)]
         (doall (-> {:current (ui/remove-sql-quotes current) :schema react-schema}))))))
 
+(defn spec->data
+  [spec]
+  (let [geom (geom/default-geom (:geom spec))
+        entity (@ggsql/datasets (:dataset spec))
+        facet-spec [(if-let [facet (get-in spec [:aesthetics :facet_x])] [:facet_x facet])
+                    (if-let [facet (get-in spec [:aesthetics :facet_y])] [:facet_y facet])]
+        aesthetics (-> spec :aesthetics (dissoc :facet_x) (dissoc :facet_y))
+        wheres (or (if (map? (:where spec))
+                     (ui/unreactify-wheres (:where spec))
+                     (:where spec)) [])
+        plot-spec (core/->plot-spec geom aesthetics wheres entity facet-spec)]
+    (ggsql/m-exec plot-spec)))
+
 (defroutes api
   (ring.middleware.json/wrap-json-body
    (GET "/api/v1/schema"
         [spec :as req]
         (response (schema-api spec))))
 
+  (ring.middleware.json/wrap-json-body
+    (GET "/api/v1/plot-data"
+         [spec]
+      (spec->data (coerce-json-spec spec))))
+
   (GET "/api/v1/plot"
        [spec width height inline :as req]
-       (binding [ui/*validate* ui/json-validator]
-         (let [data (-> spec json/read-str walk/keywordize-keys utils/remove-nils)
-               {coerced-spec :data schema :schema} (ui/validate-spec data)
-               aesthetics (:aesthetics coerced-spec)
-               w (if (string? width) (Integer/parseInt width) width)
-               w (if (< w 100) 1400 w)
-               h (if (string? height) (Integer/parseInt height) height)
-               h (if (< h 100) 800 h)]
-           (with-conf {:plot-padding [50 125 10 50]
-                            :facet-padding [30 10 10 30]
-                            :geom (geom/default-geom (:geom coerced-spec))
-                            :x-label (core/x-label (:x aesthetics))
-                            :y-label (core/y-label (:y aesthetics))
-                            :fill-label (core/aes-label (:fill aesthetics))
-                            :color-label (core/aes-label (:color aesthetics))}
-             (-> (core/plot-svg w h inline coerced-spec) response
-                 (header "Content-Type" "image/svg+xml"))))))
+    (let [coerced-spec (coerce-json-spec spec)
+          aesthetics (:aesthetics coerced-spec)
+          w (if (string? width) (Integer/parseInt width) width)
+          w (if (< w 100) 1400 w)
+          h (if (string? height) (Integer/parseInt height) height)
+          h (if (< h 100) 800 h)]
+      (with-conf {:plot-padding [50 125 10 50]
+                  :facet-padding [30 10 10 30]
+                  :geom (geom/default-geom (:geom coerced-spec))
+                  :x-label (core/x-label (:x aesthetics))
+                  :y-label (core/y-label (:y aesthetics))
+                  :fill-label (core/aes-label (:fill aesthetics))
+                  :color-label (core/aes-label (:color aesthetics))}
+        (-> (core/plot-svg w h inline coerced-spec) response
+          (header "Content-Type" "image/svg+xml")))))
 
   (GET "/api/v1/head"
        [dataset :as req]
