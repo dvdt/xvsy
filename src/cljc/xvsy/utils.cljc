@@ -1,6 +1,7 @@
 (ns xvsy.utils
   (:require [schema.core :as s]
             [clojure.walk]
+            [clojure.data.json]
             [clojure.set]))
 
 (defn css
@@ -258,3 +259,15 @@
 (defn translate
   [coordinates]
   (let [[x y] (->xy coordinates)] (str "translate(" (float x) "," (float y) ")")))
+
+(defn ->bq-schema
+  "Returns a google big query schema from the given dataset schema"
+  [s]
+  (->> s (map (fn [[col-name {type :type}]]
+                {:name col-name
+                 :type (cond
+                         (isa? type s/Str) "STRING"
+                         (isa? type s/Int) "INTEGER"
+                         (isa? type s/Bool) "BOOLEAN"
+                         (isa? type s/Num) "FLOAT")}))
+       clojure.data.json/write-str))
